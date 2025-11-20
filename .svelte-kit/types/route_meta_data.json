@@ -1,0 +1,89 @@
+{
+	"/": [
+		"src/routes/+layout.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin": [
+		"src/routes/admin/+page.ts",
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.server.ts",
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/estadisticas": [
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/gallery-media": [
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/home-media": [
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/orders": [
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/products": [
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/users": [
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/[id]": [
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/checkout": [
+		"src/routes/+layout.server.ts"
+	],
+	"/checkout/exito": [
+		"src/routes/+layout.server.ts"
+	],
+	"/contacto": [
+		"src/routes/contacto/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/galeria": [
+		"src/routes/+layout.server.ts"
+	],
+	"/gracias": [
+		"src/routes/+layout.server.ts"
+	],
+	"/hacemos": [
+		"src/routes/+layout.server.ts"
+	],
+	"/login": [
+		"src/routes/login/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/logout": [
+		"src/routes/+layout.server.ts",
+		"src/routes/logout/+server.ts"
+	],
+	"/mi-cuenta/cambiar-contraseña": [
+		"src/routes/+layout.server.ts"
+	],
+	"/mi-cuenta/pedidos": [
+		"src/routes/+layout.server.ts"
+	],
+	"/mi-cuenta/perfil": [
+		"src/routes/+layout.server.ts"
+	],
+	"/productos": [
+		"src/routes/+layout.server.ts"
+	],
+	"/recuperar-clave": [
+		"src/routes/+layout.server.ts"
+	],
+	"/recuperar-clave/nueva": [
+		"src/routes/+layout.server.ts"
+	],
+	"/registro": [
+		"src/routes/+layout.server.ts"
+	]
+}

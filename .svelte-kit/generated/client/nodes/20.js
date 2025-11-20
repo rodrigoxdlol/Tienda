@@ -1,0 +1,1 @@
+export { default as component } from "../../../../src/routes/mi-cuenta/cambiar-contraseña/+page.svelte";

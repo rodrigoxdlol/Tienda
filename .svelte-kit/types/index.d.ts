@@ -1,0 +1,43 @@
+type DynamicRoutes = {
+	"/admin/[id]": { id: string }
+};
+
+type Layouts = {
+	"/": { id?: string };
+	"/admin": { id?: string };
+	"/admin/estadisticas": undefined;
+	"/admin/gallery-media": undefined;
+	"/admin/home-media": undefined;
+	"/admin/orders": undefined;
+	"/admin/products": undefined;
+	"/admin/users": undefined;
+	"/admin/[id]": { id: string };
+	"/checkout": undefined;
+	"/checkout/exito": undefined;
+	"/contacto": undefined;
+	"/galeria": undefined;
+	"/gracias": undefined;
+	"/hacemos": undefined;
+	"/login": undefined;
+	"/logout": undefined;
+	"/mi-cuenta": undefined;
+	"/mi-cuenta/cambiar-contraseña": undefined;
+	"/mi-cuenta/pedidos": undefined;
+	"/mi-cuenta/perfil": undefined;
+	"/productos": undefined;
+	"/recuperar-clave": undefined;
+	"/recuperar-clave/nueva": undefined;
+	"/registro": undefined
+};
+
+export type RouteId = "/" | "/admin" | "/admin/estadisticas" | "/admin/gallery-media" | "/admin/home-media" | "/admin/orders" | "/admin/products" | "/admin/users" | "/admin/[id]" | "/checkout" | "/checkout/exito" | "/contacto" | "/galeria" | "/gracias" | "/hacemos" | "/login" | "/logout" | "/mi-cuenta" | "/mi-cuenta/cambiar-contraseña" | "/mi-cuenta/pedidos" | "/mi-cuenta/perfil" | "/productos" | "/recuperar-clave" | "/recuperar-clave/nueva" | "/registro";
+
+export type RouteParams<T extends RouteId> = T extends keyof DynamicRoutes ? DynamicRoutes[T] : Record<string, never>;
+
+export type LayoutParams<T extends RouteId> = Layouts[T] | Record<string, never>;
+
+export type Pathname = "/" | "/admin" | "/admin/estadisticas" | "/admin/gallery-media" | "/admin/home-media" | "/admin/orders" | "/admin/products" | "/admin/users" | `/admin/${string}` & {} | "/checkout" | "/checkout/exito" | "/contacto" | "/galeria" | "/gracias" | "/hacemos" | "/login" | "/logout" | "/mi-cuenta" | "/mi-cuenta/cambiar-contraseña" | "/mi-cuenta/pedidos" | "/mi-cuenta/perfil" | "/productos" | "/recuperar-clave" | "/recuperar-clave/nueva" | "/registro";
+
+export type ResolvedPathname = `${"" | `/${string}`}${Pathname}`;
+
+export type Asset = "/images/32147-vector-1-240w (1).png" | "/images/32171-vector-2-240w (1).png" | "/images/32176-vector-3-240w.png" | "/images/32187-vector-4-240w.png" | "/images/Cocina.png" | "/images/hero.webp" | "/images/Hojalateria.png" | "/images/LogoCocinas.png" | "/images/QueHacemos.webp" | "/images/Tienda.png" | "/robots.txt";
