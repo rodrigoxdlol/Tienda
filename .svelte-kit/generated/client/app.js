@@ -27,7 +27,9 @@ export const nodes = [
 	() => import('./nodes/23'),
 	() => import('./nodes/24'),
 	() => import('./nodes/25'),
-	() => import('./nodes/26')
+	() => import('./nodes/26'),
+	() => import('./nodes/27'),
+	() => import('./nodes/28')
 ];
 
 export const server_loads = [0];
@@ -40,23 +42,25 @@ export const dictionary = {
 		"/admin/home-media": [7,[2]],
 		"/admin/orders": [8,[2]],
 		"/admin/products": [9,[2]],
-		"/admin/users": [10,[2]],
-		"/admin/[id]": [11,[2]],
-		"/checkout": [12],
-		"/checkout/exito": [13],
-		"/contacto": [~14],
-		"/galeria": [15],
-		"/gracias": [16],
-		"/hacemos": [17],
-		"/login": [~18],
-		"/logout": [19],
-		"/mi-cuenta/cambiar-contraseña": [20],
-		"/mi-cuenta/pedidos": [21],
-		"/mi-cuenta/perfil": [22],
-		"/productos": [23],
-		"/recuperar-clave": [24],
-		"/recuperar-clave/nueva": [25],
-		"/registro": [26]
+		"/admin/reclamos": [10,[2]],
+		"/admin/users": [11,[2]],
+		"/admin/[id]": [12,[2]],
+		"/checkout": [13],
+		"/checkout/exito": [14],
+		"/contacto": [~15],
+		"/galeria": [16],
+		"/gracias": [17],
+		"/hacemos": [18],
+		"/login": [~19],
+		"/logout": [20],
+		"/mi-cuenta/cambiar-contraseña": [21],
+		"/mi-cuenta/pedidos": [22],
+		"/mi-cuenta/perfil": [23],
+		"/mi-cuenta/reclamos": [24],
+		"/productos": [25],
+		"/recuperar-clave": [26],
+		"/recuperar-clave/nueva": [27],
+		"/registro": [28]
 	};
 
 export const hooks = {

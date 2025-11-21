@@ -30,6 +30,10 @@
 		"src/routes/admin/+layout.ts",
 		"src/routes/+layout.server.ts"
 	],
+	"/admin/reclamos": [
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.server.ts"
+	],
 	"/admin/users": [
 		"src/routes/admin/+layout.ts",
 		"src/routes/+layout.server.ts"
@@ -72,6 +76,9 @@
 		"src/routes/+layout.server.ts"
 	],
 	"/mi-cuenta/perfil": [
+		"src/routes/+layout.server.ts"
+	],
+	"/mi-cuenta/reclamos": [
 		"src/routes/+layout.server.ts"
 	],
 	"/productos": [

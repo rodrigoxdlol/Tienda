@@ -114,6 +114,8 @@
     >
       {#if items.length}
         <div
+          role="region"
+          aria-label="Carrusel de imágenes"
           class="relative overflow-hidden rounded-2xl ring-1 ring-slate-200 bg-white shadow-lg"
           on:mouseenter={stop}
           on:mouseleave={start}

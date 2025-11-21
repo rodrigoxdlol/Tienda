@@ -163,7 +163,7 @@
     {#if loading}
       <div class="space-y-3">
         {#each Array(3) as _}
-          <div class="h-24 rounded-2xl bg-slate-100 animate-pulse" />
+          <div class="h-24 rounded-2xl bg-slate-100 animate-pulse"></div>
         {/each}
       </div>
     {:else if error}
@@ -229,7 +229,7 @@
                       o.status
                     )}`}
                   >
-                    <span class="h-1.5 w-1.5 rounded-full bg-current/80" />
+                    <span class="h-1.5 w-1.5 rounded-full bg-current/80"></span>
                     {statusLabel(o.status)}
                   </span>
                   <span class="text-sm font-semibold text-slate-900">

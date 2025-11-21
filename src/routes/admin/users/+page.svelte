@@ -278,6 +278,7 @@
     <div class="mt-6 rounded-2xl border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm">
       {#if loading}
         <div class="p-6 flex items-center gap-3 text-slate-600">
+          <!-- svelte-ignore element_invalid_self_closing_tag -->
           <span class="inline-block h-4 w-4 animate-spin rounded-full border-[2px] border-slate-300 border-t-slate-500" />
           <span>Cargando usuarios…</span>
         </div>
@@ -462,8 +463,20 @@
 <!-- Modal Crear/Editar -->
 {#if openModal}
   <div class="fixed inset-0 z-50 grid place-items-center p-4">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" on:click={closeModal}></div>
-
+    <div
+      class="absolute inset-0 bg-black/40 backdrop-blur-sm"
+      role="button"
+      tabindex="0"
+      aria-label="Cerrar modal"
+      on:click={closeModal}
+      on:keydown={(e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          closeModal();
+        }
+      }}
+    ></div>
+ 
     <div class="relative w-full max-w-xl rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 p-5 sm:p-6">
       <div class="flex items-start justify-between gap-3">
         <div>

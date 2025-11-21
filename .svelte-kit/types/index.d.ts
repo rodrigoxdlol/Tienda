@@ -10,6 +10,7 @@ type Layouts = {
 	"/admin/home-media": undefined;
 	"/admin/orders": undefined;
 	"/admin/products": undefined;
+	"/admin/reclamos": undefined;
 	"/admin/users": undefined;
 	"/admin/[id]": { id: string };
 	"/checkout": undefined;
@@ -24,19 +25,20 @@ type Layouts = {
 	"/mi-cuenta/cambiar-contraseña": undefined;
 	"/mi-cuenta/pedidos": undefined;
 	"/mi-cuenta/perfil": undefined;
+	"/mi-cuenta/reclamos": undefined;
 	"/productos": undefined;
 	"/recuperar-clave": undefined;
 	"/recuperar-clave/nueva": undefined;
 	"/registro": undefined
 };
 
-export type RouteId = "/" | "/admin" | "/admin/estadisticas" | "/admin/gallery-media" | "/admin/home-media" | "/admin/orders" | "/admin/products" | "/admin/users" | "/admin/[id]" | "/checkout" | "/checkout/exito" | "/contacto" | "/galeria" | "/gracias" | "/hacemos" | "/login" | "/logout" | "/mi-cuenta" | "/mi-cuenta/cambiar-contraseña" | "/mi-cuenta/pedidos" | "/mi-cuenta/perfil" | "/productos" | "/recuperar-clave" | "/recuperar-clave/nueva" | "/registro";
+export type RouteId = "/" | "/admin" | "/admin/estadisticas" | "/admin/gallery-media" | "/admin/home-media" | "/admin/orders" | "/admin/products" | "/admin/reclamos" | "/admin/users" | "/admin/[id]" | "/checkout" | "/checkout/exito" | "/contacto" | "/galeria" | "/gracias" | "/hacemos" | "/login" | "/logout" | "/mi-cuenta" | "/mi-cuenta/cambiar-contraseña" | "/mi-cuenta/pedidos" | "/mi-cuenta/perfil" | "/mi-cuenta/reclamos" | "/productos" | "/recuperar-clave" | "/recuperar-clave/nueva" | "/registro";
 
 export type RouteParams<T extends RouteId> = T extends keyof DynamicRoutes ? DynamicRoutes[T] : Record<string, never>;
 
 export type LayoutParams<T extends RouteId> = Layouts[T] | Record<string, never>;
 
-export type Pathname = "/" | "/admin" | "/admin/estadisticas" | "/admin/gallery-media" | "/admin/home-media" | "/admin/orders" | "/admin/products" | "/admin/users" | `/admin/${string}` & {} | "/checkout" | "/checkout/exito" | "/contacto" | "/galeria" | "/gracias" | "/hacemos" | "/login" | "/logout" | "/mi-cuenta" | "/mi-cuenta/cambiar-contraseña" | "/mi-cuenta/pedidos" | "/mi-cuenta/perfil" | "/productos" | "/recuperar-clave" | "/recuperar-clave/nueva" | "/registro";
+export type Pathname = "/" | "/admin" | "/admin/estadisticas" | "/admin/gallery-media" | "/admin/home-media" | "/admin/orders" | "/admin/products" | "/admin/reclamos" | "/admin/users" | `/admin/${string}` & {} | "/checkout" | "/checkout/exito" | "/contacto" | "/galeria" | "/gracias" | "/hacemos" | "/login" | "/logout" | "/mi-cuenta" | "/mi-cuenta/cambiar-contraseña" | "/mi-cuenta/pedidos" | "/mi-cuenta/perfil" | "/mi-cuenta/reclamos" | "/productos" | "/recuperar-clave" | "/recuperar-clave/nueva" | "/registro";
 
 export type ResolvedPathname = `${"" | `/${string}`}${Pathname}`;
 

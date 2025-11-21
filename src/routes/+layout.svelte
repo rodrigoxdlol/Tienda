@@ -5,9 +5,12 @@
   import { initSession, user, doLogout } from '$lib/auth.store';
   import CartMini from '$lib/components/CartMini.svelte';
   import ToastHost from '$lib/ui/ToastHost.svelte';
+  import { contactStatsStore, refreshContactStats } from '$lib/stores/contactStats.store';
+  import type { ContactStats } from '$lib/api';
 
-  // Logo servido desde /static/images/LogoCocinas.png
   const LOGO = '/images/LogoCocinas.png';
+
+  let contactStats: ContactStats | null = null;
 
   let mobileOpen = false;
   const toggle = () => (mobileOpen = !mobileOpen);
@@ -16,7 +19,16 @@
   // dropdown del cliente
   let clientOpen = false;
 
-  onMount(initSession);
+  onMount(() => {
+    initSession();
+    // cargar stats iniciales
+    refreshContactStats();
+    // suscribirse al store para que el badge cambie solo
+    const unsubscribe = contactStatsStore.subscribe((value) => {
+      contactStats = value;
+    });
+    return unsubscribe; // cleanup al desmontar
+  });
 
   async function handleLogout(e: Event) {
     e.preventDefault();
@@ -30,20 +42,21 @@
   function navClass(href: string) {
     const active = current === href;
     return `${linkBase} ${
-      active ? 'bg-slate-100 text-slate-900' : 'text-slate-700 hover:bg-slate-100'
+      active ? 'bg-slate-100 text-slate-900' : 'text-slate-800 hover:bg-slate-100'
     }`;
   }
 
   const btn =
     'inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-sm font-medium transition';
-  const btnGhost = `${btn} ring-1 ring-slate-300 hover:bg-slate-100`;
+  const btnGhost = `${btn} ring-1 ring-slate-300 hover:bg-slate-100 text-slate-900`;
   const btnPrimary = `${btn} bg-amber-600 text-white hover:bg-amber-700 shadow`;
 </script>
 
 <ToastHost />
 
 <div class="min-h-screen flex flex-col bg-slate-50 text-slate-900">
-  <nav class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
+  <!-- NAV AMARILLO SUAVE -->
+  <nav class="sticky top-0 z-40 bg-amber-100/80 backdrop-blur border-b border-amber-200">
     <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
       <!-- Logo -->
       <a href="/" class="inline-flex items-center" aria-label="Ir al inicio">
@@ -67,13 +80,23 @@
       <!-- Acciones desktop -->
       <div class="hidden md:flex items-center gap-2">
         {#if $user?.authenticated}
-          <span class="text-sm text-slate-600 hidden lg:inline">
+          <span class="text-sm text-slate-700 hidden lg:inline">
             Hola, <b>{$user.username}</b>
           </span>
 
           {#if $user?.is_staff}
-            <!-- ADMIN: solo ve panel admin -->
-            <a href="/admin" class={btnGhost}>Panel admin</a>
+            <!-- ADMIN: Panel admin con badge de reclamos pendientes -->
+            <a href="/admin" class={btnGhost}>
+              <span>Panel admin</span>
+              {#if contactStats?.pending}
+                <span
+                  class="ml-2 inline-flex h-5 min-w-[1.25rem] items-center justify-center
+                         rounded-full bg-red-500 text-[11px] font-semibold text-white px-1.5"
+                >
+                  {contactStats.pending}
+                </span>
+              {/if}
+            </a>
           {:else}
             <!-- CLIENTE: dropdown con Mis pedidos / Mi perfil -->
             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -135,6 +158,14 @@
                     on:click={() => (clientOpen = false)}
                   >
                     Cambiar contraseña
+                  </a>
+                  <a
+                    href="/mi-cuenta/reclamos"
+                    class="block px-3 py-2 text-sm hover:bg-slate-50"
+                    role="menuitem"
+                    on:click={() => (clientOpen = false)}
+                  >
+                    Mis reclamos
                   </a>
                 </div>
               {/if}
@@ -212,7 +243,7 @@
 
     <!-- Menú móvil -->
     {#if mobileOpen}
-      <div id="mobile-menu" class="md:hidden border-t border-slate-200 bg-white">
+      <div id="mobile-menu" class="md:hidden border-t border-amber-200 bg-amber-100">
         <div class="max-w-6xl mx-auto px-4 py-3 space-y-2">
           <!-- Navegación pública -->
           <div class="grid grid-cols-2 gap-2">
@@ -223,12 +254,20 @@
             <a href="/galeria" class={navClass('/galeria')} on:click={close}>Galería</a>
           </div>
 
-          <div class="pt-2 border-t border-slate-200 flex flex-wrap items-center gap-2">
+          <div class="pt-2 border-t border-amber-200 flex flex-wrap items-center gap-2">
             {#if $user?.authenticated}
               {#if $user?.is_staff}
-                <!-- ADMIN en móvil: solo panel admin -->
+                <!-- ADMIN en móvil: Panel admin con badge -->
                 <a href="/admin" class={btnPrimary} on:click={close}>
-                  Panel admin
+                  <span>Panel admin</span>
+                  {#if contactStats?.pending}
+                    <span
+                      class="ml-2 inline-flex h-5 min-w-[1.25rem] items-center justify-center
+                             rounded-full bg-red-500 text-[11px] font-semibold text-white px-1.5"
+                    >
+                      {contactStats.pending}
+                    </span>
+                  {/if}
                 </a>
               {:else}
                 <!-- CLIENTE en móvil: accesos directos -->
@@ -322,13 +361,70 @@
       </svg>
     </a>
   </div>
-  
-  <footer class="bg-slate-100">
-    <div class="max-w-6xl mx-auto px-4 py-6 text-sm text-slate-600 text-center">
-      © {new Date().getFullYear()} Cocinas Appel. Todos los derechos reservados.
+
+  <!-- FOOTER NEGRO (CÁLIDO) CON MÁS INFO -->
+  <footer class="bg-stone-950 border-t border-stone-800 text-stone-200">
+    <div class="max-w-6xl mx-auto px-4 py-8 space-y-6">
+      <div class="flex flex-col gap-6 md:flex-row md:justify-between md:items-start">
+        <!-- Columna marca -->
+        <div class="md:w-1/2 space-y-2">
+          <h2 class="text-base font-semibold tracking-wide text-stone-100">
+            Cocinas Appel · Coyhaique
+          </h2>
+          <p class="text-sm text-stone-400 leading-relaxed">
+            Fábrica y venta de cocinas a leña, calefactores de combustión lenta y soluciones
+            de hojalatería para el sur de Chile. Más de 55 años de experiencia al servicio de la región.
+          </p>
+        </div>
+
+        <!-- Columnas de enlaces -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 md:w-1/2 text-sm">
+          <div>
+            <h3 class="text-xs font-semibold tracking-[0.18em] uppercase text-stone-300">
+              Contacto
+            </h3>
+            <ul class="mt-3 space-y-1.5 text-stone-300">
+              <li>Coyhaique, Región de Aysén, Chile</li>
+              <li>+56 9 4231 2053</li>
+              <li>appelpatagonia@gmail.com</li>
+              <li class="text-stone-500 text-xs">
+                Horario de atención referencial: Lun a Vie, 10:00 a 18:00 hrs.
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-xs font-semibold tracking-[0.18em] uppercase text-stone-300">
+              Información
+            </h3>
+            <ul class="mt-3 space-y-1.5 text-stone-300">
+              <li><a href="/productos" class="hover:text-amber-300 transition">Catálogo de productos</a></li>
+              <li><a href="/contacto" class="hover:text-amber-300 transition">Solicitar cotización</a></li>
+              <li><a href="/galeria" class="hover:text-amber-300 transition">Galería de instalaciones</a></li>
+              <li class="text-stone-500 text-xs mt-2">
+                Sitio web de demostración para fines académicos.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra inferior -->
+      <div class="border-t border-stone-800 pt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-xs text-stone-500">
+        <p>
+          © {new Date().getFullYear()} Cocinas Appel. Todos los derechos reservados.
+        </p>
+        <p>
+          Desarrollado como proyecto académico de transformación digital. Este sitio no sustituye al sitio oficial de la empresa.
+        </p>
+      </div>
     </div>
   </footer>
 </div>
+
+
+
+
 
 
 

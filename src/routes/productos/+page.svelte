@@ -122,6 +122,7 @@
       <div
         class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-100"
       >
+        <!-- svelte-ignore element_invalid_self_closing_tag -->
         <span class="inline-block h-1.5 w-1.5 rounded-full bg-amber-500" />
         Catálogo de Cocinas Appel
       </div>
@@ -206,11 +207,18 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {#each Array(6) as _}
             <div class="animate-pulse bg-white rounded-2xl shadow-sm overflow-hidden ring-1 ring-slate-200">
+              <!-- svelte-ignore element_invalid_self_closing_tag -->
               <div class="w-full aspect-[4/3] bg-slate-200" />
               <div class="p-4 space-y-3">
+                <!-- svelte-ignore element_invalid_self_closing_tag -->
+                <!-- svelte-ignore element_invalid_self_closing_tag -->
+                <!-- svelte-ignore element_invalid_self_closing_tag -->
                 <div class="h-4 bg-slate-200 rounded w-2/3" />
+                <!-- svelte-ignore element_invalid_self_closing_tag -->
                 <div class="h-3 bg-slate-200 rounded w-1/2" />
+                <!-- svelte-ignore element_invalid_self_closing_tag -->
                 <div class="flex gap-2 pt-2">
+                  <!-- svelte-ignore element_invalid_self_closing_tag -->
                   <div class="h-9 bg-slate-200 rounded w-1/3" />
                   <div class="h-9 bg-slate-200 rounded w-1/3" />
                 </div>
@@ -292,6 +300,7 @@
                       <span
                         class="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-medium text-rose-700 ring-1 ring-rose-100"
                       >
+                        <!-- svelte-ignore element_invalid_self_closing_tag -->
                         <span class="h-1.5 w-1.5 rounded-full bg-rose-500" />
                         Sin stock
                       </span>
@@ -299,6 +308,7 @@
                       <span
                         class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700 ring-1 ring-amber-100"
                       >
+                        <!-- svelte-ignore element_invalid_self_closing_tag -->
                         <span class="h-1.5 w-1.5 rounded-full bg-amber-500" />
                         Stock bajo: {p.stock}
                       </span>

@@ -102,6 +102,7 @@
           </div>
 
           <!-- Contraseña -->
+          
           <div>
             <label for="password" class="block text-sm font-medium text-slate-700">Contraseña</label>
             <div class="mt-1 relative">
@@ -143,6 +144,7 @@
             </a>
           </p>
 
+          </div>
           </div>
 
           <!-- CTA -->
