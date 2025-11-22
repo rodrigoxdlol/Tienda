@@ -29,7 +29,8 @@ export const nodes = [
 	() => import('./nodes/25'),
 	() => import('./nodes/26'),
 	() => import('./nodes/27'),
-	() => import('./nodes/28')
+	() => import('./nodes/28'),
+	() => import('./nodes/29')
 ];
 
 export const server_loads = [0];
@@ -60,7 +61,8 @@ export const dictionary = {
 		"/productos": [25],
 		"/recuperar-clave": [26],
 		"/recuperar-clave/nueva": [27],
-		"/registro": [28]
+		"/registro": [28],
+		"/webpay/final": [29]
 	};
 
 export const hooks = {

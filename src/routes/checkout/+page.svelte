@@ -2,7 +2,6 @@
   import { onMount } from 'svelte';
   import { cart, total, loadCart } from '$lib/cart.store';
   import { get } from 'svelte/store';
-  import { goto } from '$app/navigation';
 
   // URL base de la API
   const API = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
@@ -25,7 +24,7 @@
     city: '',
     region: '',
     notes: '',
-    payment_method: 'stripe' as 'transfer' | 'cod' | 'stripe' // Tarjeta demo
+    payment_method: 'mercadopago' as 'mercadopago' | 'webpay' | 'transfer'
   };
 
   let sending = false;
@@ -56,30 +55,53 @@
 
     sending = true;
     try {
-      const res = await fetch(`${API}/api/checkout/`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrftoken()
-        },
-        body: JSON.stringify(form)
-      });
+      // === FLUJO MERCADO PAGO ===
+      if (form.payment_method === 'mercadopago') {
+        const res = await fetch(`${API}/api/checkout/mercadopago/`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken()
+          },
+          body: JSON.stringify({
+            full_name: form.full_name,
+            email: form.email,
+            phone: form.phone,
+            address: form.address,
+            city: form.city,
+            region: form.region,
+            notes: form.notes
+          })
+        });
 
-      if (!res.ok) {
-        // 👇 aquí ya NO leemos res.text() ni res.json() para evitar "body stream already read"
-        error = `No se pudo procesar la compra (HTTP ${res.status}).`;
+        if (!res.ok) {
+          const txt = await res.text();
+          console.error('MP error:', txt);
+          throw new Error(`No se pudo iniciar el pago con Mercado Pago (HTTP ${res.status}).`);
+        }
+
+        const data = await res.json();
+        const url = data.init_point;
+
+        if (!url) {
+          throw new Error('Respuesta inválida desde Mercado Pago.');
+        }
+
+        // Redirigir al checkout de Mercado Pago
+        window.location.href = url;
         return;
       }
 
-      const data = await res.json();
-      const order = data.order ?? data;
+      // === Si quieres mantener Webpay u otros, los dejas aquí abajo ===
+      // Por ahora, si elige Webpay mostramos un mensaje:
+      if (form.payment_method === 'webpay') {
+        error = 'Webpay aún está en configuración. Usa Mercado Pago por ahora.';
+        return;
+      }
 
-      await loadCart();
-
-      const num = order?.number ?? order?.id;
-      goto(`/checkout/exito?o=${encodeURIComponent(num ?? '')}`);
     } catch (e: any) {
+      console.error(e);
       error = String(e?.message ?? e) || 'Error al conectar con el servidor.';
     } finally {
       sending = false;
@@ -157,13 +179,15 @@
             bind:value={form.notes}
           ></textarea>
         </label>
+
         <label class="block">
           <span class="text-xs text-slate-600">Pago</span>
           <select
             class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/70"
             bind:value={form.payment_method}
           >
-            <option value="stripe">Tarjeta (demo)</option>
+            <option value="mercadopago">Mercado Pago (tarjetas / débito)</option>
+            <option value="webpay">Webpay (en construcción)</option>
           </select>
         </label>
       </div>
@@ -191,7 +215,7 @@
             </svg>
             Procesando…
           {:else}
-            Confirmar compra
+            Pagar
           {/if}
         </button>
       </div>
@@ -237,5 +261,6 @@
     </aside>
   </div>
 </section>
+
 
 

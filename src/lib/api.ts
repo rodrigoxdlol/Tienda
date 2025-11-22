@@ -3,7 +3,7 @@
 // ================== BASE ==================
 
 // URL base de la API, sin slashes al final
-const API = import.meta.env.VITE_API_URL?.replace(/\/+$/, '') || '';
+export const API = import.meta.env.VITE_API_URL?.replace(/\/+$/, '') || '';
 
 // Helper para leer cookies
 function getCookie(name: string) {
@@ -21,23 +21,105 @@ async function apiGet(path: string) {
   return r.json();
 }
 
-// POST genérico
+/**
+ * POST genérico que:
+ * - Envía credenciales (cookie de sesión)
+ * - Adjunta JSON
+ * - Si no tiene `X-CSRFToken`, llama a /api/csrf/ y agrega el token automáticamente
+ */
 async function apiPost(
   path: string,
   data: any,
   extraHeaders: Record<string, string> = {}
 ) {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...extraHeaders
+  };
+
+  // Si no nos pasaron un X-CSRFToken, lo obtenemos solos
+  if (!headers['X-CSRFToken']) {
+    try {
+      await ensureCsrf();
+      const token = getCookie('csrftoken');
+      if (token) {
+        headers['X-CSRFToken'] = token;
+      }
+    } catch {
+      // si falla, igual intentamos el POST; el backend dirá si falta CSRF
+    }
+  }
+
   const r = await fetch(`${API}${path}`, {
     method: 'POST',
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...extraHeaders,
-    },
-    body: JSON.stringify(data),
+    headers,
+    body: JSON.stringify(data)
+  });
+
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+// Si aún NO tienes apiPatch, lo definimos aquí
+async function apiPatch(
+  path: string,
+  data: any,
+  extraHeaders: Record<string, string> = {}
+) {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...extraHeaders
+  };
+
+  if (!headers['X-CSRFToken']) {
+    try {
+      await ensureCsrf();
+      const token = getCookie('csrftoken');
+      if (token) headers['X-CSRFToken'] = token;
+    } catch {
+      // ignore
+    }
+  }
+
+  const r = await fetch(`${API}${path}`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers,
+    body: JSON.stringify(data)
   });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
+}
+
+// Helper JSON genérico (GET/POST/etc) ya usado más abajo
+async function jfetch(path: string, opts: RequestInit = {}) {
+  const fullPath = `${API}${path.startsWith('/') ? '' : '/'}${path}`;
+  const r = await fetch(fullPath, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(opts.headers || {})
+    },
+    ...opts
+  });
+
+  if (!r.ok) {
+    let msg = `HTTP ${r.status}`;
+    try {
+      const j = await r.json();
+      msg = (j as any)?.detail || JSON.stringify(j);
+    } catch {
+      // si no hay JSON, dejamos el msg por defecto
+    }
+    throw new Error(msg);
+  }
+
+  try {
+    return await r.json();
+  } catch {
+    return null;
+  }
 }
 
 // ================== AUTH & SESIÓN ==================
@@ -55,6 +137,7 @@ export async function me() {
 }
 
 export async function login(username: string, password: string) {
+  // forzamos obtener CSRF antes de loguear
   await ensureCsrf();
   const token = getCookie('csrftoken');
   return apiPost(
@@ -104,15 +187,14 @@ export async function updateCartItem(item_id: number, qty: number) {
   await ensureCsrf();
   const token = getCookie('csrftoken');
 
-  // PATCH directo (mantengo la lógica que ya tenías)
   const r = await fetch(`${API}/api/cart/items/${item_id}/`, {
     method: 'PATCH',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': token,
+      'X-CSRFToken': token
     },
-    body: JSON.stringify({ qty }),
+    body: JSON.stringify({ qty })
   });
 
   if (!r.ok) {
@@ -129,15 +211,14 @@ export async function removeCartItem(item_id: number) {
     method: 'DELETE',
     credentials: 'include',
     headers: {
-      'X-CSRFToken': token,
-    },
+      'X-CSRFToken': token
+    }
   });
 
   if (!r.ok) {
     throw new Error(await r.text());
   }
 
-  // Asumimos que el backend devuelve JSON
   try {
     return await r.json();
   } catch {
@@ -145,7 +226,7 @@ export async function removeCartItem(item_id: number) {
   }
 }
 
-// ================== CHECKOUT / PEDIDOS ==================
+// ================== CHECKOUT / PEDIDOS (resumen viejo) ==================
 
 export async function checkoutSummary() {
   return apiGet('/api/checkout/summary/');
@@ -182,8 +263,8 @@ export async function createOrder(payload: {
   const res = await fetch(`${API}/api/checkout/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include', // IMPORTANTÍSIMO: envía cookie de sesión
-    body: JSON.stringify(payload),
+    credentials: 'include',
+    body: JSON.stringify(payload)
   });
 
   if (!res.ok) {
@@ -198,6 +279,38 @@ export async function createOrder(payload: {
   }
 
   return res.json(); // { order: {...} }
+}
+
+// =============== WEBPAY ===============
+
+export interface CheckoutPayload {
+  full_name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  region?: string;
+  notes?: string;
+}
+
+export interface WebpayInitResponse {
+  order_id: number;
+  url: string;
+  token: string;
+}
+
+/**
+ * Inicia un pago Webpay Plus:
+ * -> crea la orden en Django
+ * -> llama a Transbank SDK
+ * -> retorna url + token para redirigir al usuario
+ *
+ * Usa apiPost, que ya se encarga de CSRF.
+ */
+export async function checkoutWebpay(
+  data: CheckoutPayload
+): Promise<WebpayInitResponse> {
+  return apiPost('/api/checkout/webpay/', data);
 }
 
 // ================== IMÁGENES SITIO ==================
@@ -219,43 +332,8 @@ export async function sendContact(data: {
   subject?: string;
   message: string;
 }) {
-  await ensureCsrf();
-  const csrftoken = getCookie('csrftoken');
-  return apiPost('/api/site/contact/', data, {
-    'X-CSRFToken': csrftoken,
-  });
-}
-
-// ================== HELPER JSON GENÉRICO (NUEVO) ==================
-
-async function jfetch(path: string, opts: RequestInit = {}) {
-  const fullPath = `${API}${path.startsWith('/') ? '' : '/'}${path}`;
-  const r = await fetch(fullPath, {
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(opts.headers || {}),
-    },
-    ...opts,
-  });
-
-  if (!r.ok) {
-    let msg = `HTTP ${r.status}`;
-    try {
-      const j = await r.json();
-      msg = (j as any)?.detail || JSON.stringify(j);
-    } catch {
-      // si no hay JSON, dejamos el msg por defecto
-    }
-    throw new Error(msg);
-  }
-
-  // si no hay cuerpo JSON (204), devolvemos null
-  try {
-    return await r.json();
-  } catch {
-    return null;
-  }
+  // apiPost ya mete CSRF si hace falta
+  return apiPost('/api/site/contact/', data);
 }
 
 // ================== CLIENTE: CARRITO & PEDIDOS ==================
@@ -269,7 +347,7 @@ export async function attachCart() {
   const token = getCookie('csrftoken');
   return jfetch('/api/cart/attach/', {
     method: 'POST',
-    headers: { 'X-CSRFToken': token },
+    headers: { 'X-CSRFToken': token }
   });
 }
 
@@ -299,41 +377,13 @@ export type MyOrderSummary = {
   created_at: string;
 };
 
-/**
- * Wrapper compatible con lo que ya usabas.
- * Devuelve el listado de pedidos del usuario.
- */
 export async function myOrders(): Promise<MyOrderSummary[]> {
   const data = await listMyOrders();
   return data as MyOrderSummary[];
 }
 
-/**
- * Wrapper compatible: detalle de un pedido.
- */
 export async function myOrderDetail(id: number): Promise<any> {
   return getMyOrder(id);
-}
-
-
-// Si aún NO tienes apiPatch, agrégalo:
-async function apiPatch(path: string, data: any, extraHeaders: Record<string,string> = {}) {
-  const csrftoken = getCookie('csrftoken');
-
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    'X-CSRFToken': csrftoken,
-    ...extraHeaders,
-  };
-
-  const r = await fetch(`${API}${path}`, {
-    method: 'PATCH',
-    credentials: 'include',
-    headers,
-    body: JSON.stringify(data),
-  });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
 }
 
 // =========================
@@ -371,7 +421,7 @@ export interface MyContactMessage {
   subject: string;
   message: string;
   admin_reply: string | null;
-  status: 'pending' | 'answered' | 'closed';
+  status: ContactStatus;
   created_at: string;
   replied_at: string | null;
 }
@@ -391,3 +441,37 @@ export async function adminContactStats(): Promise<ContactStats> {
   return apiGet('/api/admin/shop/contact-messages/stats/');
 }
 
+// ================== MERCADO PAGO ==================
+
+export interface CheckoutPayload {
+  full_name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  region?: string;
+  notes?: string;
+}
+
+export interface MpCheckoutResponse {
+  order_id: number;
+  preference_id: string;
+  init_point: string;
+}
+
+
+export interface MercadoPagoCheckoutResponse {
+  order_id: number;
+  preference_id: string;
+  init_point: string;
+  sandbox_init_point?: string;
+}
+
+/**
+ * Inicia el checkout de Mercado Pago:
+ * llama a /api/checkout/mercadopago/ y devuelve la URL para redirigir.
+ */
+export async function checkoutMercadoPago(payload: CheckoutPayload): Promise<MercadoPagoCheckoutResponse> {
+  // Usa el helper apiPost que ya tienes
+  return apiPost('/api/checkout/mercadopago/', payload);
+}

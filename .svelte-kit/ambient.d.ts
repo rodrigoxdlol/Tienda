@@ -41,7 +41,11 @@ declare module '$env/static/private' {
 	export const ComSpec: string;
 	export const DriverData: string;
 	export const EDITOR: string;
-	export const EFC_7880_1592913036: string;
+	export const EFC_3356_1262719628: string;
+	export const EFC_3356_1592913036: string;
+	export const EFC_3356_2283032206: string;
+	export const EFC_3356_2775293581: string;
+	export const EFC_3356_3789132940: string;
 	export const EMAIL_HOST_PASSWORD: string;
 	export const EMAIL_HOST_USER: string;
 	export const HOME: string;
@@ -152,7 +156,11 @@ declare module '$env/dynamic/private' {
 		ComSpec: string;
 		DriverData: string;
 		EDITOR: string;
-		EFC_7880_1592913036: string;
+		EFC_3356_1262719628: string;
+		EFC_3356_1592913036: string;
+		EFC_3356_2283032206: string;
+		EFC_3356_2775293581: string;
+		EFC_3356_3789132940: string;
 		EMAIL_HOST_PASSWORD: string;
 		EMAIL_HOST_USER: string;
 		HOME: string;

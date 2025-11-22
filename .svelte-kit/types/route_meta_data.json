@@ -92,5 +92,8 @@
 	],
 	"/registro": [
 		"src/routes/+layout.server.ts"
+	],
+	"/webpay/final": [
+		"src/routes/+layout.server.ts"
 	]
 }

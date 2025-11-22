@@ -46,6 +46,7 @@
 </script>
 
 <!-- Botón + Panel -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="relative inline-block" on:keydown={onKey}>
   <!-- Botón Carrito -->
   <button
@@ -68,6 +69,7 @@
 
   {#if open}
     <!-- Overlay (solo útil en móvil si no cubriéramos toda la pantalla; se mantiene para consistencia) -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
     <div class="fixed inset-0 z-40 lg:hidden" on:click={closePanel} out:fade={{ duration: 100 }}></div>
 
     <!-- Panel: fullscreen en móvil, flotante en desktop -->
