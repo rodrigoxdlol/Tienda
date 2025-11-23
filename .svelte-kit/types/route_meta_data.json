@@ -22,6 +22,10 @@
 		"src/routes/admin/+layout.ts",
 		"src/routes/+layout.server.ts"
 	],
+	"/admin/noticias": [
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.server.ts"
+	],
 	"/admin/orders": [
 		"src/routes/admin/+layout.ts",
 		"src/routes/+layout.server.ts"
@@ -46,6 +50,15 @@
 		"src/routes/+layout.server.ts"
 	],
 	"/checkout/exito": [
+		"src/routes/+layout.server.ts"
+	],
+	"/checkout/failure": [
+		"src/routes/+layout.server.ts"
+	],
+	"/checkout/pending": [
+		"src/routes/+layout.server.ts"
+	],
+	"/checkout/success": [
 		"src/routes/+layout.server.ts"
 	],
 	"/contacto": [
@@ -79,6 +92,12 @@
 		"src/routes/+layout.server.ts"
 	],
 	"/mi-cuenta/reclamos": [
+		"src/routes/+layout.server.ts"
+	],
+	"/noticias": [
+		"src/routes/+layout.server.ts"
+	],
+	"/privacidad": [
 		"src/routes/+layout.server.ts"
 	],
 	"/productos": [

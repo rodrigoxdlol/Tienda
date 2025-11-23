@@ -30,3 +30,4 @@ export function rebuildContactStatsFromMessages(messages: AdminContactMessage[])
   };
   contactStatsStore.set(stats);
 }
+

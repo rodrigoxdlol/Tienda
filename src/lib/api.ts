@@ -6,7 +6,7 @@
 export const API = import.meta.env.VITE_API_URL?.replace(/\/+$/, '') || '';
 
 // Helper para leer cookies
-function getCookie(name: string) {
+export function getCookie(name: string): string {
   return (
     document.cookie
       .split('; ')
@@ -15,7 +15,8 @@ function getCookie(name: string) {
 }
 
 // GET genérico
-async function apiGet(path: string) {
+
+export async function apiGet(path: string) {
   const r = await fetch(`${API}${path}`, { credentials: 'include' });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
@@ -27,7 +28,7 @@ async function apiGet(path: string) {
  * - Adjunta JSON
  * - Si no tiene `X-CSRFToken`, llama a /api/csrf/ y agrega el token automáticamente
  */
-async function apiPost(
+export async function apiPost(
   path: string,
   data: any,
   extraHeaders: Record<string, string> = {}
@@ -471,7 +472,132 @@ export interface MercadoPagoCheckoutResponse {
  * Inicia el checkout de Mercado Pago:
  * llama a /api/checkout/mercadopago/ y devuelve la URL para redirigir.
  */
-export async function checkoutMercadoPago(payload: CheckoutPayload): Promise<MercadoPagoCheckoutResponse> {
-  // Usa el helper apiPost que ya tienes
-  return apiPost('/api/checkout/mercadopago/', payload);
+
+export async function checkoutMercadoPago(
+  data: CheckoutPayload
+): Promise<MpCheckoutResponse> {
+  return apiPost('/api/checkout/mercadopago/', data);
+}
+// ================== ADMIN: IMÁGENES DE NOTICIAS ==================
+
+// $lib/api.ts (además de lo que ya tienes)
+
+// ================== NOTICIAS (NEWS IMAGES) ==================
+
+export type NewsImage = {
+  id: number;
+  title: string | null;
+  caption: string | null;
+  image: string;           // URL absoluta desde el backend
+  order: number | null;
+  is_active: boolean;
+  created_at: string;
+};
+
+// Para el admin usamos el mismo shape por ahora
+export type AdminNewsImage = NewsImage;
+
+/**
+ * Listado público de noticias (solo activas, lo filtra el backend).
+ * GET /api/site/news-images/
+ */
+// $lib/api.ts
+export async function listNewsImages(): Promise<NewsImage[]> {
+  return apiGet('/api/site/news-images/');
+}
+
+
+/**
+ * Listado admin de imágenes de noticias.
+ * GET /api/admin/news-images/
+ */
+export async function adminListNewsImages(): Promise<AdminNewsImage[]> {
+  const res = await fetch(`${API}/api/admin/news-images/`, {
+    credentials: 'include'
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+/**
+ * Crear una nueva imagen de noticia (admin).
+ * POST /api/admin/news-images/
+ */
+export async function adminCreateNewsImage(payload: {
+  title?: string;
+  caption?: string;
+  image: File;
+  is_active?: boolean;
+  order?: number;
+}): Promise<AdminNewsImage> {
+  const form = new FormData();
+
+  if (payload.title) form.append('title', payload.title);
+  if (payload.caption) form.append('caption', payload.caption);
+  form.append('image', payload.image);
+
+  if (payload.is_active !== undefined) {
+    form.append('is_active', String(payload.is_active));
+  }
+  if (payload.order !== undefined) {
+    form.append('order', String(payload.order));
+  }
+
+  const res = await fetch(`${API}/api/admin/news-images/`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: form
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+/**
+ * Eliminar una noticia (admin).
+ * DELETE /api/admin/news-images/{id}/
+ */
+export async function adminDeleteNewsImage(id: number): Promise<void> {
+  const res = await fetch(`${API}/api/admin/news-images/${id}/`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      'X-CSRFToken': getCookie('csrftoken')
+    }
+  });
+  if (!res.ok) throw new Error(await res.text());
+}
+
+
+
+
+
+// registrar una visita (lo usa trackVisitOncePerDay)
+export async function registerVisit() {
+  // apiPost es el helper que ya usas en el resto del proyecto
+  return apiPost('/api/site/track-visit/', {});
+}
+
+// stats de visitas para el admin (14 días por defecto)
+
+
+export type VisitPoint = {
+  date: string;
+  visits: number;
+};
+
+export type VisitStatsResponse = {
+  points: VisitPoint[];
+};
+
+export async function adminGetVisitStats(
+  days: number = 14
+): Promise<VisitStatsResponse> {
+  const r = await fetch(`${API}/api/admin/visit-stats/?days=${days}`, {
+    credentials: 'include'
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
 }

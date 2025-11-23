@@ -1,23 +1,16 @@
 // src/lib/api.admin.ts
-const API = import.meta.env.VITE_API_URL;
+import { API, apiGet, getCookie } from '$lib/api';
 
-/* ======================= CSRF ======================= */
-function csrftoken() {
-  if (typeof document === 'undefined') return '';
-  return (
-    document.cookie
-      .split('; ')
-      .find((x) => x.startsWith('csrftoken='))?.split('=')[1] ?? ''
-  );
-}
+/* ======================= TIPOS GENERALES ======================= */
 
-/* ======================= TIPOS NUEVOS (opcionales) ======================= */
 export type Paginated<T> = {
   count: number;
   next: string | null;
   previous: string | null;
   results: T[];
 };
+
+/* ======================= USERS ======================= */
 
 export interface AdminUser {
   id: number;
@@ -29,6 +22,8 @@ export interface AdminUser {
   date_joined: string;
   last_login: string | null;
 }
+
+/* ======================= ORDERS ======================= */
 
 export type AdminOrder = {
   id: number;
@@ -46,7 +41,33 @@ export type AdminOrder = {
   created_at: string;
 };
 
-/* ======================= Productos ======================= */
+export interface AdminOrderListParams {
+  user_id?: number;
+  page?: number;
+  page_size?: number;
+  status?:
+    | 'pending'
+    | 'paid'
+    | 'in_production'
+    | 'ready'
+    | 'delivered'
+    | 'cancelled'
+    | 'all'
+    | string;
+  email?: string;
+  date_from?: string; // 'YYYY-MM-DD'
+  date_to?: string; // 'YYYY-MM-DD'
+}
+
+/* ======================= HELPERS CSRF ======================= */
+
+function csrftoken() {
+  if (typeof document === 'undefined') return '';
+  return getCookie('csrftoken');
+}
+
+/* ======================= PRODUCTOS ======================= */
+
 export async function adminListProducts() {
   const r = await fetch(`${API}/api/admin/products/`, { credentials: 'include' });
   if (!r.ok) throw await r.text();
@@ -95,7 +116,7 @@ export async function adminUploadMainImage(id: number, file: File) {
   const r = await fetch(`${API}/api/admin/products/${id}/upload-main/`, {
     method: 'POST',
     credentials: 'include',
-    headers: { 'X-CSRFToken': csrftoken() }, // NO poner Content-Type a mano
+    headers: { 'X-CSRFToken': csrftoken() },
     body: fd
   });
   if (!r.ok) throw await r.text();
@@ -123,7 +144,7 @@ export async function adminDeleteGallery(imgId: number) {
     headers: { 'X-CSRFToken': csrftoken() }
   });
   if (!r.ok) throw await r.text();
-  return true; // muchos endpoints devuelven 204
+  return true;
 }
 
 export async function adminDeleteProduct(id: number) {
@@ -136,7 +157,8 @@ export async function adminDeleteProduct(id: number) {
   return true;
 }
 
-/* ======================= Categorías ======================= */
+/* ======================= CATEGORÍAS ======================= */
+
 export interface AdminCategory {
   id: number;
   name: string;
@@ -197,25 +219,7 @@ export async function adminDeleteCategory(id: number): Promise<boolean> {
   return true;
 }
 
-/* ======================= Orders (lista + detalle + stats) ======================= */
-
-export interface AdminOrderListParams {
-  user_id?: number;
-  page?: number;
-  page_size?: number;
-  status?:
-    | 'pending'
-    | 'paid'
-    | 'in_production'
-    | 'ready'
-    | 'delivered'
-    | 'cancelled'
-    | 'all'
-    | string;
-  email?: string;
-  date_from?: string; // 'YYYY-MM-DD'
-  date_to?: string;   // 'YYYY-MM-DD'
-}
+/* ======================= ORDERS: LISTA / DETALLE / STATS ======================= */
 
 export async function adminListOrders(params: AdminOrderListParams = {}) {
   let url = `${API}/api/admin/orders/`;
@@ -234,7 +238,7 @@ export async function adminListOrders(params: AdminOrderListParams = {}) {
 
   const r = await fetch(url, { credentials: 'include' });
   if (!r.ok) throw await r.text();
-  return r.json(); // puede ser array o paginado
+  return r.json();
 }
 
 export async function adminGetOrder(id: number) {
@@ -253,9 +257,16 @@ export type AdminOrderStats = {
   by_status: { status: string; count: number; total: number }[];
   by_category: { id: number | null; name: string; total: number; qty: number }[];
   top_products: { id: number; name: string; total: number; qty: number }[];
+
+  trend_30_days?: {
+    date: string;
+    count: number;
+  }[];
 };
 
-export async function adminGetOrderStats(params?: AdminOrderListParams) {
+export async function adminGetOrderStats(
+  params?: AdminOrderListParams
+): Promise<AdminOrderStats> {
   const sp = new URLSearchParams();
 
   if (params?.status && params.status !== 'all') sp.set('status', params.status);
@@ -296,7 +307,7 @@ export async function adminUpdateOrderStatus(
   return r.json();
 }
 
-/* ======================= Home Images ======================= */
+/* ======================= HOME IMAGES ======================= */
 
 export async function adminListHomeImages() {
   const r = await fetch(`${API}/api/admin/home-images/`, { credentials: 'include' });
@@ -315,7 +326,7 @@ export async function adminCreateHomeImage(data: {
   if (data.title) fd.append('title', data.title);
   if (data.caption) fd.append('caption', data.caption);
   if (data.order !== undefined) fd.append('order', String(data.order));
-  fd.append('image', data.file); // campo debe llamarse "image"
+  fd.append('image', data.file);
   if (data.is_active !== undefined)
     fd.append('is_active', data.is_active ? 'true' : 'false');
 
@@ -367,10 +378,12 @@ export async function adminReorderHomeImages(list: { id: number; order: number }
   return r.json();
 }
 
-/* ======================= Gallery Images ======================= */
+/* ======================= GALLERY IMAGES ======================= */
 
 export async function adminListGalleryImages() {
-  const r = await fetch(`${API}/api/admin/gallery-images/`, { credentials: 'include' });
+  const r = await fetch(`${API}/api/admin/gallery-images/`, {
+    credentials: 'include'
+  });
   if (!r.ok) throw await r.text();
   return r.json();
 }
@@ -417,16 +430,9 @@ export async function adminPatchGalleryImage(id: number, patch: any) {
 export async function adminDeleteGalleryImage(id: number) {
   const r = await fetch(`${API}/api/admin/gallery-images/${id}/`, {
     method: 'DELETE',
-    credentials: { 'X-CSRFToken': csrftoken() } as any
-  } as RequestInit); // pequeña trampa para no romper nada de TS / runtime
-
-  // ^ si tu versión anterior funcionaba bien, deja esto como estaba:
-  // const r = await fetch(`${API}/api/admin/gallery-images/${id}/`, {
-  //   method: 'DELETE',
-  //   credentials: 'include',
-  //   headers: { 'X-CSRFToken': csrftoken() }
-  // });
-
+    credentials: 'include',
+    headers: { 'X-CSRFToken': csrftoken() }
+  });
   if (!r.ok) throw await r.text();
   return true;
 }
@@ -445,7 +451,7 @@ export async function adminReorderGalleryImages(list: { id: number; order: numbe
   return r.json();
 }
 
-/* ======================= USERS ======================= */
+/* ======================= USERS (ADMIN) ======================= */
 
 export interface AdminUserListParams {
   search?: string;
@@ -476,7 +482,7 @@ export async function adminListUsers(
       const data = await r.json();
       msg = (data as any).detail || JSON.stringify(data);
     } catch {
-      // ignorar
+      // ignore
     }
     throw new Error(msg);
   }
@@ -532,7 +538,7 @@ export async function adminDeleteUser(id: number) {
   return true;
 }
 
-/* ======================= STATS (AdminStats + low stock + CSV) ======================= */
+/* ======================= STATS + LOW STOCK + CSV ======================= */
 
 export type AdminStats = {
   days: number;
@@ -565,14 +571,13 @@ export async function adminGetStats(days = 30): Promise<AdminStats> {
       const data = await r.json();
       msg = (data as any).detail || JSON.stringify(data);
     } catch {
-      // ignorar
+      // ignore
     }
     throw new Error(msg);
   }
   return r.json();
 }
 
-// 🔸 LISTAR PRODUCTOS CON STOCK BAJO
 export async function adminListLowStock(limit = 5) {
   const qs = new URLSearchParams({ limit: String(limit) });
   const r = await fetch(`${API}/api/admin/products/low-stock/?${qs.toString()}`, {
@@ -581,11 +586,9 @@ export async function adminListLowStock(limit = 5) {
   if (!r.ok) throw new Error(await r.text());
 
   const data = await r.json();
-  // backend devuelve { low_stock: [...] }
   return Array.isArray(data.low_stock) ? data.low_stock : [];
 }
 
-// 🔸 EXPORTAR ÓRDENES A CSV
 export async function adminExportOrdersCSV(params?: AdminOrderListParams) {
   const qs = new URLSearchParams();
 
@@ -619,4 +622,105 @@ export async function adminExportOrdersCSV(params?: AdminOrderListParams) {
 
   URL.revokeObjectURL(blobUrl);
 }
+
+/* ======================= NOTICIAS / NEWS IMAGES ======================= */
+
+export type AdminNewsImage = {
+  id: number;
+  title: string | null;
+  caption: string | null;
+  image: string;
+  order: number | null;
+  is_active: boolean;
+  created_at: string;
+};
+
+// Lista pública
+export async function listNewsImages(): Promise<AdminNewsImage[]> {
+  return apiGet('/api/site/news-images/');
+}
+
+// Lista admin
+export async function adminListNewsImages(): Promise<AdminNewsImage[]> {
+  const r = await fetch(`${API}/api/admin/news-images/`, {
+    credentials: 'include'
+  });
+  if (!r.ok) throw await r.text();
+  return r.json();
+}
+
+export async function adminPatchNewsImage(
+  id: number,
+  patch: Partial<{ is_active: boolean; order: number }>
+): Promise<AdminNewsImage> {
+  const res = await fetch(`${API}/api/admin/news-images/${id}/`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrftoken()
+    },
+    body: JSON.stringify(patch)
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function adminCreateNewsImage(data: {
+  title?: string;
+  caption?: string;
+  order?: number;
+  file: File;
+  is_active?: boolean;
+}): Promise<AdminNewsImage> {
+  const fd = new FormData();
+  if (data.title) fd.append('title', data.title);
+  if (data.caption) fd.append('caption', data.caption);
+  if (data.order !== undefined) fd.append('order', String(data.order));
+  fd.append('image', data.file);
+  if (data.is_active !== undefined) {
+    fd.append('is_active', data.is_active ? 'true' : 'false');
+  }
+
+  const r = await fetch(`${API}/api/admin/news-images/`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'X-CSRFToken': csrftoken()
+    },
+    body: fd
+  });
+  if (!r.ok) throw await r.text();
+  return r.json();
+}
+
+export async function adminDeleteNewsImage(id: number): Promise<void> {
+  const r = await fetch(`${API}/api/admin/news-images/${id}/`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      'X-CSRFToken': csrftoken()
+    }
+  });
+  if (!r.ok) throw await r.text();
+}
+
+/* ======================= VISITAS AL SITIO ======================= */
+
+// punto para el gráfico de visitas
+export type VisitPoint = {
+  date: string;   // '2025-11-23'
+  visits: number; // cantidad de visitas ese día
+};
+
+// obtener estadísticas de visitas (últimos N días)
+export async function adminGetVisitStats(
+  days = 14
+): Promise<{ points: VisitPoint[] }> {
+  const url = `${API}/api/admin/visit-stats/?days=${days}`;
+  const r = await fetch(url, { credentials: 'include' });
+  if (!r.ok) throw await r.text();
+  return r.json();
+}
+
 

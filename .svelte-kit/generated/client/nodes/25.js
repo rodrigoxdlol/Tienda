@@ -1,1 +1,1 @@
-export { default as component } from "../../../../src/routes/productos/+page.svelte";
+export { default as component } from "../../../../src/routes/mi-cuenta/cambiar-contraseña/+page.svelte";

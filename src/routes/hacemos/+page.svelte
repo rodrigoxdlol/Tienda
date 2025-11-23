@@ -1,6 +1,7 @@
 <!-- src/routes/que-hacemos/+page.svelte -->
 <script lang="ts">
-  const STOVE = "/images/QueHacemos.webp"; // cambia por tu archivo en /static/images
+  const STOVE = "/images/QueHacemos.webp"; 
+  import ChatBot from '$lib/components/ChatBot.svelte';// cambia por tu archivo en /static/images
 </script>
 
 <main class="bg-slate-50">
@@ -127,4 +128,5 @@
       </aside>
     </div>
   </section>
+  <ChatBot />
 </main>

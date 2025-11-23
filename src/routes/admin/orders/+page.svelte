@@ -8,6 +8,7 @@
     type AdminOrder,
     type AdminOrderListParams
   } from '$lib/api.admin';
+  import { API } from '$lib/api'; // 👈 nuevo
   import { toastError, toastSuccess } from '$lib/ui/toast';
 
   const clp = new Intl.NumberFormat('es-CL', {
@@ -15,6 +16,9 @@
     currency: 'CLP',
     maximumFractionDigits: 0
   }).format;
+
+  // URL base para exportar CSV
+  const CSV_URL = `${API}/api/admin/orders/export-csv/`; // 👈 nuevo
 
   // ------- Tipos de stats locales (adaptamos lo que viene del backend) -------
   type StatusStat = { status: string; count: number; total: number | string };
@@ -70,7 +74,20 @@
     loadStats();
   });
 
-  // ------- Cargar órdenes -------
+  // ------- helper para URL de CSV (respeta filtros) -------
+  function buildCsvUrl(): string {
+    const params = new URLSearchParams();
+
+    if (statusFilter !== 'all') params.set('status', statusFilter);
+    if (emailFilter.trim()) params.set('email', emailFilter.trim());
+    if (dateFrom) params.set('date_from', dateFrom);
+    if (dateTo) params.set('date_to', dateTo);
+
+    const qs = params.toString();
+    return qs ? `${CSV_URL}?${qs}` : CSV_URL;
+  }
+
+  // ------- Cargar órdenes -------  
   async function load() {
     loading = true;
     error = '';
@@ -104,7 +121,7 @@
     }
   }
 
-  // ------- Cargar estadísticas -------
+  // ------- Cargar estadísticas -------  
   async function loadStats() {
     loadingStats = true;
     try {
@@ -160,8 +177,7 @@
 
   $: totalPages = Math.max(1, Math.ceil(count / PAGE_SIZE));
 
-  // ------- Detalle y cambio de estado -------
-
+  // ------- Detalle y cambio de estado -------  
   async function openDetail(order: AdminOrder) {
     openModal = true;
     loadingDetail = true;
@@ -322,6 +338,14 @@
       </label>
 
       <div class="ml-auto flex items-center gap-2">
+        <!-- Botón exportar CSV -->
+        <a
+          href={buildCsvUrl()}
+          class="rounded-xl px-3 py-2 text-sm bg-emerald-600 text-white hover:bg-emerald-700 flex items-center gap-1"
+        >
+          ⬇️ Exportar CSV
+        </a>
+
         <button
           type="button"
           class="rounded-xl px-3 py-2 text-sm ring-1 ring-slate-300 hover:bg-slate-50"
@@ -358,13 +382,16 @@
         {:else}
           <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500">
             <span class="inline-flex items-center gap-1">
+              <!-- svelte-ignore element_invalid_self_closing_tag -->
               <span class="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               {stats.by_status.length} estados
             </span>
             <span class="inline-flex items-center gap-1">
+              <!-- svelte-ignore element_invalid_self_closing_tag -->
               <span class="h-1.5 w-1.5 rounded-full bg-sky-500" />
               {stats.by_category.length} categorías
             </span>
+            <!-- svelte-ignore element_invalid_self_closing_tag -->
             <span class="inline-flex items-center gap-1">
               <span class="h-1.5 w-1.5 rounded-full bg-violet-500" />
               {stats.top_products.length} productos destacados
@@ -392,6 +419,7 @@
                       s.status
                     )}`}
                   >
+                    <!-- svelte-ignore element_invalid_self_closing_tag -->
                     <span class="h-1.5 w-1.5 rounded-full bg-current/80" />
                     {statusLabel(s.status)}
                   </span>
@@ -761,6 +789,7 @@
     </div>
   {/if}
 </section>
+
 
 
 

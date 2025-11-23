@@ -1,1 +1,1 @@
-export { default as component } from "../../../../src/routes/recuperar-clave/+page.svelte";
+export { default as component } from "../../../../src/routes/mi-cuenta/pedidos/+page.svelte";

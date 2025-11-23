@@ -53,6 +53,11 @@
       <div class="text-slate-800 font-semibold">Reclamos</div>
       <p class="text-sm text-slate-600 mt-1">Gestiona reclamos de clientes.</p>
     </a>
+    <a href="/admin/noticias" class={tile}>
+      <div class="text-slate-800 font-semibold">Noticias</div>
+      <p class="text-sm text-slate-600 mt-1">Gestión de noticias.</p>
+    </a>
+
   </div>
 {:else}
   <!-- Mensaje si no es staff o no está logueado -->

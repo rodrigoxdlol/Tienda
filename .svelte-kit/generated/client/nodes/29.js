@@ -1,1 +1,1 @@
-export { default as component } from "../../../../src/routes/webpay/final/+page.svelte";
+export { default as component } from "../../../../src/routes/noticias/+page.svelte";

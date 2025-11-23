@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { listHomeImages } from '$lib/api';
   import { goto } from '$app/navigation';
+  import ChatBot from '$lib/components/ChatBot.svelte';
 
   // Estado del carrito para FAB
   import { count, total } from '$lib/cart.store';
@@ -333,28 +334,7 @@
       </div>
     </section>
   </section>
+  <ChatBot />
 </main>
-
-<!-- FAB de Checkout (solo si hay items en el carrito) -->
-{#if $count > 0}
-  <div class="fixed bottom-4 right-4 z-50">
-    <button
-      type="button"
-      on:click={goCheckout}
-      class="flex items-center gap-2 rounded-full bg-amber-600 text-white px-4 py-2 shadow-xl
-             hover:bg-amber-700 active:bg-amber-800 hover:-translate-y-0.5 transition
-             backdrop-blur-sm ring-1 ring-amber-500/60"
-      aria-label="Ir a pagar"
-      title="Ir a pagar"
-    >
-      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm10 0a2 2 0 1 0 .001 3.999A2 2 0 0 0 17 18zM7.2 6h13l-1.5 7.5a2 2 0 0 1-2 1.6H9l-.4 2H5V15h2l2-9z"/>
-      </svg>
-      <span class="text-sm font-medium">
-        Ir a pagar · {fmt($total)}
-      </span>
-    </button>
-  </div>
-{/if}
 
 

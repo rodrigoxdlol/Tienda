@@ -12,7 +12,7 @@ type EnsureDefined<T> = T extends null | undefined ? {} : T;
 type OptionalUnion<U extends Record<string, any>, A extends keyof U = U extends U ? keyof U : never> = U extends unknown ? { [P in Exclude<A, keyof U>]?: never } & U : never;
 export type Snapshot<T = any> = Kit.Snapshot<T>;
 type PageParentData = EnsureDefined<LayoutData>;
-type LayoutRouteId = RouteId | "/" | "/admin" | "/admin/estadisticas" | "/admin/gallery-media" | "/admin/home-media" | "/admin/orders" | "/admin/products" | "/admin/reclamos" | "/admin/users" | "/admin/[id]" | "/checkout" | "/checkout/exito" | "/contacto" | "/galeria" | "/gracias" | "/hacemos" | "/login" | "/logout" | "/mi-cuenta/cambiar-contraseña" | "/mi-cuenta/pedidos" | "/mi-cuenta/perfil" | "/mi-cuenta/reclamos" | "/productos" | "/recuperar-clave" | "/recuperar-clave/nueva" | "/registro" | "/webpay/final" | null
+type LayoutRouteId = RouteId | "/" | "/admin" | "/admin/estadisticas" | "/admin/gallery-media" | "/admin/home-media" | "/admin/noticias" | "/admin/orders" | "/admin/products" | "/admin/reclamos" | "/admin/users" | "/admin/[id]" | "/checkout" | "/checkout/exito" | "/checkout/failure" | "/checkout/pending" | "/checkout/success" | "/contacto" | "/galeria" | "/gracias" | "/hacemos" | "/login" | "/logout" | "/mi-cuenta/cambiar-contraseña" | "/mi-cuenta/pedidos" | "/mi-cuenta/perfil" | "/mi-cuenta/reclamos" | "/noticias" | "/privacidad" | "/productos" | "/recuperar-clave" | "/recuperar-clave/nueva" | "/registro" | "/webpay/final" | null
 type LayoutParams = RouteParams & { id?: string }
 type LayoutServerParentData = EnsureDefined<{}>;
 type LayoutParentData = EnsureDefined<{}>;

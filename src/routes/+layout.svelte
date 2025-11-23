@@ -7,6 +7,7 @@
   import ToastHost from '$lib/ui/ToastHost.svelte';
   import { contactStatsStore, refreshContactStats } from '$lib/stores/contactStats.store';
   import type { ContactStats } from '$lib/api';
+  import { trackVisitOncePerDay } from '$lib/analytics'; // 👈 registra visita 1 vez por día
 
   const LOGO = '/images/LogoCocinas.png';
 
@@ -20,14 +21,20 @@
   let clientOpen = false;
 
   onMount(() => {
+    // sesión + reclamos pendientes
     initSession();
-    // cargar stats iniciales
     refreshContactStats();
-    // suscribirse al store para que el badge cambie solo
+    trackVisitOncePerDay();
+    // registrar visita 1 vez por día por navegador
+    
+
+    // suscripción al store para el badge de reclamos
     const unsubscribe = contactStatsStore.subscribe((value) => {
       contactStats = value;
     });
-    return unsubscribe; // cleanup al desmontar
+
+    // cleanup al desmontar
+    return unsubscribe;
   });
 
   async function handleLogout(e: Event) {
@@ -75,6 +82,7 @@
         <a href="/productos" class={navClass('/productos')}>Productos</a>
         <a href="/contacto" class={navClass('/contacto')}>Contacto</a>
         <a href="/galeria" class={navClass('/galeria')}>Galería</a>
+        <a href="/noticias" class={navClass('/noticias')}>Noticias</a>
       </div>
 
       <!-- Acciones desktop -->
@@ -252,6 +260,7 @@
             <a href="/productos" class={navClass('/productos')} on:click={close}>Productos</a>
             <a href="/contacto" class={navClass('/contacto')} on:click={close}>Contacto</a>
             <a href="/galeria" class={navClass('/galeria')} on:click={close}>Galería</a>
+            <a href="/noticias" class={navClass('/noticias')} on:click={close}>Noticias</a>
           </div>
 
           <div class="pt-2 border-t border-amber-200 flex flex-wrap items-center gap-2">
@@ -401,6 +410,12 @@
               <li><a href="/productos" class="hover:text-amber-300 transition">Catálogo de productos</a></li>
               <li><a href="/contacto" class="hover:text-amber-300 transition">Solicitar cotización</a></li>
               <li><a href="/galeria" class="hover:text-amber-300 transition">Galería de instalaciones</a></li>
+              <li>
+                <a href="/privacidad" class="hover:text-amber-300 transition">
+                  Política de privacidad
+                </a>
+              </li>
+
               <li class="text-stone-500 text-xs mt-2">
                 Sitio web de demostración para fines académicos.
               </li>
@@ -421,6 +436,7 @@
     </div>
   </footer>
 </div>
+
 
 
 

@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { listProducts } from '$lib/api';
   import { add } from '$lib/cart.store';
+  import ChatBot from '$lib/components/ChatBot.svelte';
 
   // WhatsApp (sin + ni espacios)
   const WHATSAPP = '56942312053';
@@ -361,6 +362,7 @@
       {/if}
     </div>
   </div>
+  <ChatBot />
 </section>
 
 

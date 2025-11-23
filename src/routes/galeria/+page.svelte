@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { listGalleryImages } from '$lib/api';
-
+  import ChatBot from '$lib/components/ChatBot.svelte';
   let items: any[] = [];
   let i = 0;
 
@@ -89,6 +89,7 @@
       </div>
     {:else}
       <div class="relative mx-auto w-full select-none">
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
           class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white/90 shadow-md shadow-slate-200 backdrop-blur-sm"
           on:pointerdown|passive={onPointerDown}
@@ -154,6 +155,7 @@
                 {i + 1} / {items.length}
               </span>
               {#if playing}
+                <!-- svelte-ignore element_invalid_self_closing_tag -->
                 <span class="hidden sm:inline-flex items-center gap-1 rounded-full bg-black/45 text-white/90 px-2 py-0.5 backdrop-blur">
                   <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   Reproducción automática
@@ -227,6 +229,7 @@
       </div>
     {/if}
   </div>
+  <ChatBot />
 </section>
 
 

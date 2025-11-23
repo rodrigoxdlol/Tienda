@@ -8,6 +8,7 @@ type Layouts = {
 	"/admin/estadisticas": undefined;
 	"/admin/gallery-media": undefined;
 	"/admin/home-media": undefined;
+	"/admin/noticias": undefined;
 	"/admin/orders": undefined;
 	"/admin/products": undefined;
 	"/admin/reclamos": undefined;
@@ -15,6 +16,9 @@ type Layouts = {
 	"/admin/[id]": { id: string };
 	"/checkout": undefined;
 	"/checkout/exito": undefined;
+	"/checkout/failure": undefined;
+	"/checkout/pending": undefined;
+	"/checkout/success": undefined;
 	"/contacto": undefined;
 	"/galeria": undefined;
 	"/gracias": undefined;
@@ -26,6 +30,8 @@ type Layouts = {
 	"/mi-cuenta/pedidos": undefined;
 	"/mi-cuenta/perfil": undefined;
 	"/mi-cuenta/reclamos": undefined;
+	"/noticias": undefined;
+	"/privacidad": undefined;
 	"/productos": undefined;
 	"/recuperar-clave": undefined;
 	"/recuperar-clave/nueva": undefined;
@@ -34,13 +40,13 @@ type Layouts = {
 	"/webpay/final": undefined
 };
 
-export type RouteId = "/" | "/admin" | "/admin/estadisticas" | "/admin/gallery-media" | "/admin/home-media" | "/admin/orders" | "/admin/products" | "/admin/reclamos" | "/admin/users" | "/admin/[id]" | "/checkout" | "/checkout/exito" | "/contacto" | "/galeria" | "/gracias" | "/hacemos" | "/login" | "/logout" | "/mi-cuenta" | "/mi-cuenta/cambiar-contraseña" | "/mi-cuenta/pedidos" | "/mi-cuenta/perfil" | "/mi-cuenta/reclamos" | "/productos" | "/recuperar-clave" | "/recuperar-clave/nueva" | "/registro" | "/webpay" | "/webpay/final";
+export type RouteId = "/" | "/admin" | "/admin/estadisticas" | "/admin/gallery-media" | "/admin/home-media" | "/admin/noticias" | "/admin/orders" | "/admin/products" | "/admin/reclamos" | "/admin/users" | "/admin/[id]" | "/checkout" | "/checkout/exito" | "/checkout/failure" | "/checkout/pending" | "/checkout/success" | "/contacto" | "/galeria" | "/gracias" | "/hacemos" | "/login" | "/logout" | "/mi-cuenta" | "/mi-cuenta/cambiar-contraseña" | "/mi-cuenta/pedidos" | "/mi-cuenta/perfil" | "/mi-cuenta/reclamos" | "/noticias" | "/privacidad" | "/productos" | "/recuperar-clave" | "/recuperar-clave/nueva" | "/registro" | "/webpay" | "/webpay/final";
 
 export type RouteParams<T extends RouteId> = T extends keyof DynamicRoutes ? DynamicRoutes[T] : Record<string, never>;
 
 export type LayoutParams<T extends RouteId> = Layouts[T] | Record<string, never>;
 
-export type Pathname = "/" | "/admin" | "/admin/estadisticas" | "/admin/gallery-media" | "/admin/home-media" | "/admin/orders" | "/admin/products" | "/admin/reclamos" | "/admin/users" | `/admin/${string}` & {} | "/checkout" | "/checkout/exito" | "/contacto" | "/galeria" | "/gracias" | "/hacemos" | "/login" | "/logout" | "/mi-cuenta" | "/mi-cuenta/cambiar-contraseña" | "/mi-cuenta/pedidos" | "/mi-cuenta/perfil" | "/mi-cuenta/reclamos" | "/productos" | "/recuperar-clave" | "/recuperar-clave/nueva" | "/registro" | "/webpay" | "/webpay/final";
+export type Pathname = "/" | "/admin" | "/admin/estadisticas" | "/admin/gallery-media" | "/admin/home-media" | "/admin/noticias" | "/admin/orders" | "/admin/products" | "/admin/reclamos" | "/admin/users" | `/admin/${string}` & {} | "/checkout" | "/checkout/exito" | "/checkout/failure" | "/checkout/pending" | "/checkout/success" | "/contacto" | "/galeria" | "/gracias" | "/hacemos" | "/login" | "/logout" | "/mi-cuenta" | "/mi-cuenta/cambiar-contraseña" | "/mi-cuenta/pedidos" | "/mi-cuenta/perfil" | "/mi-cuenta/reclamos" | "/noticias" | "/privacidad" | "/productos" | "/recuperar-clave" | "/recuperar-clave/nueva" | "/registro" | "/webpay" | "/webpay/final";
 
 export type ResolvedPathname = `${"" | `/${string}`}${Pathname}`;
 

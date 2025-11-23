@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { cart, total, loadCart } from '$lib/cart.store';
   import { get } from 'svelte/store';
+  import { goto } from '$app/navigation';
 
   // URL base de la API
   const API = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
@@ -16,6 +17,8 @@
     );
   }
 
+  type PaymentMethod = 'mercadopago' | 'webpay' | 'transfer';
+
   let form = {
     full_name: '',
     email: '',
@@ -24,7 +27,7 @@
     city: '',
     region: '',
     notes: '',
-    payment_method: 'mercadopago' as 'mercadopago' | 'webpay' | 'transfer'
+    payment_method: 'mercadopago' as PaymentMethod
   };
 
   let sending = false;
@@ -78,7 +81,9 @@
         if (!res.ok) {
           const txt = await res.text();
           console.error('MP error:', txt);
-          throw new Error(`No se pudo iniciar el pago con Mercado Pago (HTTP ${res.status}).`);
+          throw new Error(
+            `No se pudo iniciar el pago con Mercado Pago (HTTP ${res.status}).`
+          );
         }
 
         const data = await res.json();
@@ -93,13 +98,50 @@
         return;
       }
 
-      // === Si quieres mantener Webpay u otros, los dejas aquí abajo ===
-      // Por ahora, si elige Webpay mostramos un mensaje:
+      // === FLUJO TRANSFERENCIA / PAGO MANUAL (usa tu /api/checkout/) ===
+      if (form.payment_method === 'transfer') {
+        const res = await fetch(`${API}/api/checkout/`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken()
+          },
+          body: JSON.stringify({
+            full_name: form.full_name,
+            email: form.email,
+            phone: form.phone,
+            address: form.address,
+            city: form.city,
+            region: form.region,
+            notes: form.notes,
+            payment_method: 'transfer'
+          })
+        });
+
+        if (!res.ok) {
+          const txt = await res.text();
+          console.error('Checkout error:', txt);
+          throw new Error(
+            `No se pudo procesar la compra (HTTP ${res.status}).`
+          );
+        }
+
+        const data = await res.json();
+        const order = data.order ?? data;
+        // número de orden para la página de éxito
+        const num = order?.number ?? order?.id;
+
+        await loadCart(); // vacía/actualiza carrito
+        goto(`/checkout/exito?o=${encodeURIComponent(num ?? '')}`);
+        return;
+      }
+
+      // === WEBPAY (por ahora solo mensaje) ===
       if (form.payment_method === 'webpay') {
         error = 'Webpay aún está en configuración. Usa Mercado Pago por ahora.';
         return;
       }
-
     } catch (e: any) {
       console.error(e);
       error = String(e?.message ?? e) || 'Error al conectar con el servidor.';
@@ -187,6 +229,7 @@
             bind:value={form.payment_method}
           >
             <option value="mercadopago">Mercado Pago (tarjetas / débito)</option>
+            <option value="transfer">Transferencia / pago manual</option>
             <option value="webpay">Webpay (en construcción)</option>
           </select>
         </label>
@@ -194,6 +237,7 @@
 
       <div class="mt-5">
         <button
+          type="button"
           on:click={submit}
           class="inline-flex items-center gap-2 rounded-xl bg-amber-600 text-white px-4 py-2 text-sm font-medium shadow hover:bg-amber-700 disabled:opacity-60"
           disabled={sending}
