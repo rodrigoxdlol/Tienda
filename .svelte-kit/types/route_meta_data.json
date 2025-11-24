@@ -62,6 +62,7 @@
 		"src/routes/+layout.server.ts"
 	],
 	"/contacto": [
+		"src/routes/contacto/+page.ts",
 		"src/routes/contacto/+page.server.ts",
 		"src/routes/+layout.server.ts"
 	],
@@ -103,6 +104,10 @@
 	"/productos": [
 		"src/routes/+layout.server.ts"
 	],
+	"/productos/[slug]": [
+		"src/routes/productos/[slug]/+page.ts",
+		"src/routes/+layout.server.ts"
+	],
 	"/recuperar-clave": [
 		"src/routes/+layout.server.ts"
 	],
@@ -110,6 +115,7 @@
 		"src/routes/+layout.server.ts"
 	],
 	"/registro": [
+		"src/routes/registro/+page.ts",
 		"src/routes/+layout.server.ts"
 	],
 	"/webpay/final": [

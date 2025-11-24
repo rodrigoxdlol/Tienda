@@ -47,8 +47,26 @@
         credentials: 'include'
       });
 
+      // 🔹 Manejo especial para 429 (rate limit)
       if (!res.ok) {
-        throw new Error('Error en la API');
+        let data: any = null;
+        try {
+          data = await res.json();
+        } catch {
+          // ignore json parse error
+        }
+
+        if (res.status === 429) {
+          const msg =
+            data?.detail ||
+            'Has enviado muchas preguntas seguidas 🤯. Espera un momento y vuelve a intentarlo.';
+          messages = [...messages, { from: 'bot', text: msg }];
+          return;
+        }
+
+        const generic =
+          data?.detail || 'Lo siento, hubo un problema al responder (error en la API).';
+        throw new Error(generic);
       }
 
       const data = await res.json();
@@ -62,7 +80,10 @@
         ...messages,
         {
           from: 'bot',
-          text: 'Ups, hubo un error al conectar con el servidor 😢. Intenta de nuevo en un momento.'
+          text:
+            err instanceof Error
+              ? err.message
+              : 'Ups, hubo un error al conectar con el servidor 😢. Intenta de nuevo en un momento.'
         }
       ];
     } finally {

@@ -5,7 +5,7 @@
   import ChatBot from '$lib/components/ChatBot.svelte';
 
   // WhatsApp (sin + ni espacios)
-  const WHATSAPP = '56942312053';
+  const WHATSAPP = '56977082796';
 
   // Imagen de respaldo
   const PLACEHOLDER = '/images/hero.webp';

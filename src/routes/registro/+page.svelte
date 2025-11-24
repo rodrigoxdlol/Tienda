@@ -3,6 +3,7 @@
   import { initSession } from '$lib/auth.store';
   import { goto } from '$app/navigation';
   import { toastSuccess, toastError } from '$lib/ui/toast';
+  import { onMount, onDestroy } from 'svelte';
 
   let username = '';
   let email = '';
@@ -18,6 +19,25 @@
   // ✅ Acuerdo de datos
   let acceptsDataPolicy = false;
   let agreementsSection: HTMLElement | null = null;
+
+  // reCAPTCHA state
+  let recaptchaToken = '';
+
+  onMount(() => {
+    (window as any).onRegisterCaptchaSuccess = (token: string) => {
+      recaptchaToken = token;
+      formError = formError === 'Por favor, completa el captcha' ? '' : formError;
+    };
+    
+    (window as any).onRegisterCaptchaExpired = () => {
+      recaptchaToken = '';
+    };
+  });
+
+  onDestroy(() => {
+    delete (window as any).onRegisterCaptchaSuccess;
+    delete (window as any).onRegisterCaptchaExpired;
+  });
 
   function scrollToAgreements() {
     if (agreementsSection) {
@@ -70,11 +90,25 @@
         throw new Error('Debes aceptar el uso de tus datos personales para crear la cuenta.');
       }
 
+      // ✅ Validar reCAPTCHA
+      if (!recaptchaToken) {
+        formError = 'Por favor, completa el captcha';
+        throw new Error('Por favor, completa el captcha');
+      }
+
       validateClient();
       loading = true;
 
-      await register({ username, email, password, password2 });
+      // Incluir el token de reCAPTCHA en el registro
+      await register({ username, email, password, password2, recaptcha_token: recaptchaToken });
       await initSession(); // ya debe venir autenticado
+      
+      // Resetear reCAPTCHA después del éxito
+      if ((window as any).grecaptcha) {
+        (window as any).grecaptcha.reset();
+        recaptchaToken = '';
+      }
+      
       toastSuccess('Cuenta creada, sesión iniciada');
       goto('/');
     } catch (e: any) {
@@ -96,6 +130,10 @@
     }
   }
 </script>
+
+<svelte:head>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</svelte:head>
 
 <!-- Fondo con degradado sutil -->
 <div class="min-h-screen bg-gradient-to-br from-amber-50 via-slate-50 to-white flex items-center justify-center p-4">
@@ -306,6 +344,21 @@
                   </a>)
                 </span>
               </label>
+            </div>
+          </div>
+
+          <!-- reCAPTCHA Widget -->
+          <div class="pt-3 pb-1">
+            <div class="flex flex-col items-center gap-2">
+              <div 
+                class="g-recaptcha transform scale-95 sm:scale-100" 
+                data-sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                data-callback="onRegisterCaptchaSuccess"
+                data-expired-callback="onRegisterCaptchaExpired"
+              ></div>
+              {#if formError === 'Por favor, completa el captcha'}
+                <p class="text-xs text-red-600 text-center">{formError}</p>
+              {/if}
             </div>
           </div>
 

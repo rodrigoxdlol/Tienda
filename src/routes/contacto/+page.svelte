@@ -21,6 +21,36 @@
   let errors: FormErrors = {};
   let serverMsg = '';
 
+  // reCAPTCHA
+  let recaptchaToken = '';
+  
+  // Global callback for reCAPTCHA
+  // Se necesita declarar en window para que el script de Google lo encuentre si usas data-callback
+  // O simplemente asignarlo cuando el usuario interactúa.
+  // En este caso, usaremos una función que asignaremos al objeto window.
+  
+  import { onMount, onDestroy } from 'svelte';
+
+  onMount(() => {
+    (window as any).onCaptchaSuccess = (token: string) => {
+      recaptchaToken = token;
+      if (errors.recaptcha) {
+         delete errors.recaptcha;
+         errors = errors; // trigger reactivity
+      }
+    };
+    
+    (window as any).onCaptchaExpired = () => {
+      recaptchaToken = '';
+    };
+  });
+
+  onDestroy(() => {
+    // Limpieza si es necesaria
+    delete (window as any).onCaptchaSuccess;
+    delete (window as any).onCaptchaExpired;
+  });
+
   // 👇 para no sobreescribir lo que el usuario ya editó a mano
   let autofilled = false;
 
@@ -55,6 +85,7 @@
     if (!name.trim()) errors.name = 'Ingresa tu nombre';
     if (!email.trim()) errors.email = 'Ingresa tu correo';
     if (!message.trim()) errors.message = 'Ingresa tu mensaje';
+    if (!recaptchaToken) errors.recaptcha = 'Por favor, completa el captcha';
 
     // honeypot (bots)
     if (company.trim()) {
@@ -78,7 +109,8 @@
           email,
           phone,
           subject,
-          message
+          message,
+          recaptcha_token: recaptchaToken
         })
       });
 
@@ -92,6 +124,11 @@
         // limpiar SOLO asunto y mensaje, dejamos nombre/email/teléfono autocompletados
         subject = '';
         message = '';
+        // Reset reCAPTCHA
+        recaptchaToken = '';
+        if ((window as any).grecaptcha) {
+          (window as any).grecaptcha.reset();
+        }
       }
     } catch (e) {
       console.error(e);
@@ -101,6 +138,10 @@
     }
   }
 </script>
+
+<svelte:head>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</svelte:head>
 
 <main class="bg-slate-50">
   <section class="max-w-5xl mx-auto px-4 py-10 md:py-14">
@@ -174,7 +215,8 @@
                   d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.36 11.36 0 0 0 3.56.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.3 21 3 13.7 3 4a1 1 0 0 1 1-1h2.49a1 1 0 0 1 1 1 11.36 11.36 0 0 0 .57 3.56 1 1 0 0 1-.24 1.02l-2.2 2.2Z"
                 />
               </svg>
-              <span>+56 9 1234 5678</span>
+              <span>+67 223 3255</span>
+              <span>+56 9 77082796</span>
             </li>
             <li class="flex items-center gap-3">
               <svg
@@ -354,6 +396,19 @@
           {#if errors.message}
             <p class="mt-1 text-xs text-red-600">{errors.message}</p>
           {/if}
+        </div>
+
+        <!-- reCAPTCHA Widget -->
+        <div class="flex flex-col gap-1">
+           <div 
+             class="g-recaptcha" 
+             data-sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+             data-callback="onCaptchaSuccess"
+             data-expired-callback="onCaptchaExpired"
+           ></div>
+           {#if errors.recaptcha}
+             <p class="text-xs text-red-600">{errors.recaptcha}</p>
+           {/if}
         </div>
 
         <div class="flex items-center justify-between gap-4 pt-2">

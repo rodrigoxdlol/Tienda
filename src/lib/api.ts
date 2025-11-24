@@ -170,6 +170,27 @@ export async function listProducts() {
   return apiGet('/api/products/');
 }
 
+export async function getProduct(slugOrId: string | number) {
+  // Primero intentar obtener el producto individual (puede tener más detalles)
+  try {
+    const productDetail = await apiGet(`/api/products/${slugOrId}/`);
+    console.log('Producto desde endpoint individual:', productDetail);
+    return productDetail;
+  } catch (e) {
+    console.log('Endpoint individual falló, usando listado:', e);
+    // Si falla, buscar en el listado general
+    const products = await listProducts();
+    const found = products.find((p: any) =>
+      p.slug === slugOrId || p.id === slugOrId || String(p.id) === String(slugOrId)
+    );
+    if (!found) {
+      throw new Error('Product not found');
+    }
+    console.log('Producto desde listado:', found);
+    return found;
+  }
+}
+
 export async function getCart() {
   return apiGet('/api/cart/');
 }

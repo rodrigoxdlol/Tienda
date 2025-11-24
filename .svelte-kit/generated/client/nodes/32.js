@@ -1,1 +1,3 @@
-export { default as component } from "../../../../src/routes/recuperar-clave/+page.svelte";
+import * as universal from "../../../../src/routes/productos/[slug]/+page.ts";
+export { universal };
+export { default as component } from "../../../../src/routes/productos/[slug]/+page.svelte";

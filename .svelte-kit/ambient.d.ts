@@ -27,12 +27,13 @@
  */
 declare module '$env/static/private' {
 	export const VITE_API_URL: string;
+	export const VITE_RECAPTCHA_SITE_KEY: string;
 	export const ACSetupSvcPort: string;
 	export const ALLUSERSPROFILE: string;
+	export const ANTIGRAVITY_CLI_ALIAS: string;
 	export const APPDATA: string;
 	export const ChocolateyInstall: string;
 	export const ChocolateyLastPathUpdate: string;
-	export const CHROME_CRASHPAD_PIPE_NAME: string;
 	export const COLOR: string;
 	export const COLORTERM: string;
 	export const CommonProgramFiles: string;
@@ -41,13 +42,15 @@ declare module '$env/static/private' {
 	export const ComSpec: string;
 	export const DriverData: string;
 	export const EDITOR: string;
-	export const EFC_3356_1262719628: string;
-	export const EFC_3356_1592913036: string;
-	export const EFC_3356_2283032206: string;
-	export const EFC_3356_2775293581: string;
-	export const EFC_3356_3789132940: string;
+	export const EFC_3720_1262719628: string;
+	export const EFC_3720_1592913036: string;
+	export const EFC_3720_2283032206: string;
+	export const EFC_3720_2775293581: string;
+	export const EFC_3720_3789132940: string;
 	export const EMAIL_HOST_PASSWORD: string;
 	export const EMAIL_HOST_USER: string;
+	export const FPS_BROWSER_APP_PROFILE_STRING: string;
+	export const FPS_BROWSER_USER_PROFILE_STRING: string;
 	export const HOME: string;
 	export const HOMEDRIVE: string;
 	export const HOMEPATH: string;
@@ -109,6 +112,7 @@ declare module '$env/static/private' {
 	export const USERDOMAIN_ROAMINGPROFILE: string;
 	export const USERNAME: string;
 	export const USERPROFILE: string;
+	export const VSCODE_NONCE: string;
 	export const windir: string;
 }
 
@@ -142,12 +146,13 @@ declare module '$env/static/public' {
 declare module '$env/dynamic/private' {
 	export const env: {
 		VITE_API_URL: string;
+		VITE_RECAPTCHA_SITE_KEY: string;
 		ACSetupSvcPort: string;
 		ALLUSERSPROFILE: string;
+		ANTIGRAVITY_CLI_ALIAS: string;
 		APPDATA: string;
 		ChocolateyInstall: string;
 		ChocolateyLastPathUpdate: string;
-		CHROME_CRASHPAD_PIPE_NAME: string;
 		COLOR: string;
 		COLORTERM: string;
 		CommonProgramFiles: string;
@@ -156,13 +161,15 @@ declare module '$env/dynamic/private' {
 		ComSpec: string;
 		DriverData: string;
 		EDITOR: string;
-		EFC_3356_1262719628: string;
-		EFC_3356_1592913036: string;
-		EFC_3356_2283032206: string;
-		EFC_3356_2775293581: string;
-		EFC_3356_3789132940: string;
+		EFC_3720_1262719628: string;
+		EFC_3720_1592913036: string;
+		EFC_3720_2283032206: string;
+		EFC_3720_2775293581: string;
+		EFC_3720_3789132940: string;
 		EMAIL_HOST_PASSWORD: string;
 		EMAIL_HOST_USER: string;
+		FPS_BROWSER_APP_PROFILE_STRING: string;
+		FPS_BROWSER_USER_PROFILE_STRING: string;
 		HOME: string;
 		HOMEDRIVE: string;
 		HOMEPATH: string;
@@ -224,6 +231,7 @@ declare module '$env/dynamic/private' {
 		USERDOMAIN_ROAMINGPROFILE: string;
 		USERNAME: string;
 		USERPROFILE: string;
+		VSCODE_NONCE: string;
 		windir: string;
 		[key: `PUBLIC_${string}`]: undefined;
 		[key: `${string}`]: string | undefined;

@@ -34,6 +34,7 @@
   let form = {
     name: '',
     slug: '',
+    description: '',
     price: 0,
     stock: 0,
     is_active: true,
@@ -157,6 +158,7 @@
       const payload: any = {
         name: form.name,
         slug: form.slug,
+        description: form.description || '',
         price: form.price,
         stock: form.stock,
         is_active: form.is_active,
@@ -174,6 +176,7 @@
       form = {
         name: '',
         slug: '',
+        description: '',
         price: 0,
         stock: 0,
         is_active: true,
@@ -269,7 +272,13 @@
       items = items.filter((x) => x.id !== id);
       toastSuccess('Producto eliminado');
     } catch (e: any) {
-      toastError(String(e?.message ?? e));
+      console.error('Error eliminando producto:', e);
+      const errorMsg = String(e?.message || e);
+      if (errorMsg.includes('foreign key') || errorMsg.includes('referenced') || errorMsg.includes('constraint')) {
+        toastError('No se puede eliminar: este producto está en pedidos existentes. Puedes desactivarlo en su lugar.');
+      } else {
+        toastError(`Error al eliminar: ${errorMsg.substring(0, 100)}`);
+      }
     } finally {
       busyDelProd = delBusy(busyDelProd, id);
     }
@@ -478,6 +487,16 @@
             bind:value={form.slug}
           />
         </div>
+      </label>
+
+      <label class="sm:col-span-6">
+        <span class="block text-xs text-slate-600 mb-1">Descripción</span>
+        <textarea
+          class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/70"
+          placeholder="Descripción detallada del producto (opcional)"
+          rows="3"
+          bind:value={form.description}
+        ></textarea>
       </label>
 
       <label class="sm:col-span-2">

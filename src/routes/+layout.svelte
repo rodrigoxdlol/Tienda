@@ -78,7 +78,7 @@
       <!-- Links desktop -->
       <div class="hidden md:flex gap-1.5 items-center">
         <a href="/" class={navClass('/')}>Inicio</a>
-        <a href="/hacemos" class={navClass('/hacemos')}>Qué hacemos</a>
+        <a href="/hacemos" class={navClass('/hacemos')}>Hacemos</a>
         <a href="/productos" class={navClass('/productos')}>Productos</a>
         <a href="/contacto" class={navClass('/contacto')}>Contacto</a>
         <a href="/galeria" class={navClass('/galeria')}>Galería</a>
@@ -344,7 +344,7 @@
 
     <!-- WhatsApp -->
     <a
-      href="https://wa.me/56942312053?text=Hola%20quiero%20información"
+      href="https://wa.me/56977082796?text=Hola%20quiero%20información"
       target="_blank"
       rel="noopener"
       aria-label="WhatsApp"
@@ -394,7 +394,7 @@
             </h3>
             <ul class="mt-3 space-y-1.5 text-stone-300">
               <li>Coyhaique, Región de Aysén, Chile</li>
-              <li>+56 9 4231 2053</li>
+              <li>+56 9 77082796</li>
               <li>appelpatagonia@gmail.com</li>
               <li class="text-stone-500 text-xs">
                 Horario de atención referencial: Lun a Vie, 10:00 a 18:00 hrs.
@@ -409,7 +409,7 @@
             <ul class="mt-3 space-y-1.5 text-stone-300">
               <li><a href="/productos" class="hover:text-amber-300 transition">Catálogo de productos</a></li>
               <li><a href="/contacto" class="hover:text-amber-300 transition">Solicitar cotización</a></li>
-              <li><a href="/galeria" class="hover:text-amber-300 transition">Galería de instalaciones</a></li>
+              <li><a href="/galeria" class="hover:text-amber-300 transition">Galería</a></li>
               <li>
                 <a href="/privacidad" class="hover:text-amber-300 transition">
                   Política de privacidad
@@ -430,7 +430,7 @@
           © {new Date().getFullYear()} Cocinas Appel. Todos los derechos reservados.
         </p>
         <p>
-          Desarrollado como proyecto académico de transformación digital. Este sitio no sustituye al sitio oficial de la empresa.
+          Desarrollado como proyecto académico de transformación digital. Proyecto propio.
         </p>
       </div>
     </div>

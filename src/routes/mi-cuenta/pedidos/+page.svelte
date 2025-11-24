@@ -147,19 +147,6 @@
   </section>
 {:else}
   <section class="max-w-5xl mx-auto mt-4 space-y-6">
-    <header class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <h1 class="text-2xl font-semibold text-slate-900 tracking-tight">
-          Mis pedidos
-        </h1>
-        <p class="mt-1 text-sm text-slate-600">
-          Revisa el detalle de tus compras y utiliza el botón de
-          <span class="font-semibold text-slate-800">“Pagar (prueba)”</span> para
-          simular un pago y ver cómo se actualiza el stock y las estadísticas.
-        </p>
-      </div>
-    </header>
-
     {#if loading}
       <div class="space-y-3">
         {#each Array(3) as _}

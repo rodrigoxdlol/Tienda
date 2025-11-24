@@ -104,9 +104,9 @@
   // datos para gráfico de visitas
   $: maxVisits = visitPoints.length
     ? Math.max(...visitPoints.map((p) => Number(p.visits || 0)))
-    : 1;
+    : 0;
 
-  $: safeMaxVisits = maxVisits || 1;
+  $: safeMaxVisits = maxVisits > 0 ? maxVisits : 1;
 
   function fmtDayLabel(dateStr: string) {
     try {
@@ -365,7 +365,7 @@
 
       {#if loadingVisits}
         <!-- svelte-ignore element_invalid_self_closing_tag -->
-        <div class="h-40 rounded-xl bg-slate-100 animate-pulse" />
+        <div class="h-44 rounded-xl bg-slate-100 animate-pulse" />
       {:else if !visitPoints.length}
         <p class="text-xs text-slate-500">
           Aún no hay visitas registradas. Cuando el layout llame a
@@ -373,28 +373,40 @@
           aquí verás la tendencia.
         </p>
       {:else}
-        <div class="h-56 flex flex-col justify-between">
-          <!-- gráfico tipo barras verticales -->
-          <div class="flex-1 h-40 flex items-end gap-[4px] border-b border-slate-100 pb-3">
-            {#each visitPoints as p}
-              <div class="flex-1 min-w-[6px] flex flex-col items-center gap-1 h-full">
-                <!-- svelte-ignore element_invalid_self_closing_tag -->
-                <div
-                  class="w-full rounded-t-full bg-sky-500 hover:bg-sky-600 transition-all"
-                  style={`height: ${
-                    Math.max(8, (Number(p.visits || 0) / safeMaxVisits) * 100)
-                  }%; min-height: 4px;`}
-                  title={`${fmtDayLabel(p.date)} · ${p.visits} visita(s)`}
-                />
-              </div>
-            {/each}
+        <div class="space-y-2">
+          <!-- contenedor con grilla -->
+          <div class="relative h-48 rounded-xl visits-grid overflow-hidden bg-gradient-to-b from-sky-50/60 via-white to-white">
+            <div class="absolute inset-3 flex items-end gap-2">
+              {#each visitPoints as p}
+                <div class="flex-1 flex flex-col items-center gap-1">
+                  <!-- valor arriba de la barra -->
+                  <div class="h-4 flex items-end justify-center text-[10px] text-slate-500">
+                    {#if p.visits}
+                      <span class="px-1.5 py-[1px] rounded-full bg-sky-100 text-sky-700 font-medium shadow-sm">
+                        {p.visits}
+                      </span>
+                    {/if}
+                  </div>
+
+                  <!-- barra -->
+                  <!-- svelte-ignore element_invalid_self_closing_tag -->
+                  <div
+                    class="w-full rounded-t-xl bg-sky-400/80 shadow-sm hover:bg-sky-500 hover:shadow-md transition-all duration-200"
+                    style={`height: ${
+                      Math.max(6, (Number(p.visits || 0) / safeMaxVisits) * 100)
+                    }%;`}
+                    title={`${fmtDayLabel(p.date)} · ${p.visits} visita(s)`}
+                  />
+                </div>
+              {/each}
+            </div>
           </div>
 
-          <!-- labels de días (cada 3 para no saturar) -->
-          <div class="mt-1 flex gap-[4px] text-[10px] text-slate-500">
+          <!-- labels de días (cada 2 para no saturar) -->
+          <div class="flex gap-2 text-[10px] text-slate-500">
             {#each visitPoints as p, i}
-              <div class="flex-1 min-w-[6px] text-center">
-                {#if i % 3 === 0}
+              <div class="flex-1 text-center">
+                {#if i % 2 === 0}
                   {fmtDayLabel(p.date)}
                 {/if}
               </div>
@@ -406,3 +418,14 @@
   {/if}
 </section>
 
+<style>
+  /* Fondo de grilla suave para el gráfico de visitas */
+  .visits-grid {
+    background-image: linear-gradient(
+      to top,
+      rgba(148, 163, 184, 0.23) 1px,
+      transparent 1px
+    );
+    background-size: 100% 22px;
+  }
+</style>
