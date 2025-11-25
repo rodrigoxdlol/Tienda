@@ -452,9 +452,43 @@
         </div>
       </form>
     </div>
+
+    <!-- Banner de Maestranza Appel -->
+    <div class="mt-10 md:mt-14">
+      <div class="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-200/50 group hover:shadow-3xl transition-all duration-500">
+        <!-- Efecto de brillo animado -->
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+        
+        <!-- Banner con efecto parallax suave -->
+        <div class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 p-1">
+          <img 
+            src="/images/banner-appel.jpg" 
+            alt="Maestranza Appel - Artículos de Menaje y Ferretería" 
+            class="w-full h-auto transform group-hover:scale-[1.02] transition-transform duration-700 ease-out"
+            loading="lazy"
+          />
+        </div>
+
+        <!-- Overlay decorativo con gradiente sutil -->
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/20 via-transparent to-transparent pointer-events-none"></div>
+        
+        <!-- Badge flotante -->
+        <div class="absolute top-4 right-4 bg-amber-500/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg ring-1 ring-amber-400/60 transform group-hover:scale-110 transition-transform duration-300">
+          <span class="text-xs font-bold text-slate-900 tracking-wide">✨ Productos de Calidad</span>
+        </div>
+      </div>
+
+      <!-- Texto descriptivo elegante -->
+      <div class="mt-6 text-center">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-50 to-orange-50 ring-1 ring-amber-200/50 shadow-sm">
+          <span class="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+          <p class="text-sm font-medium text-slate-700">
+            Especialistas en cocinas, calefactores y hojalatería
+          </p>
+          <span class="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+        </div>
+      </div>
+    </div>
   </section>
   <ChatBot />
 </main>
-
-
-

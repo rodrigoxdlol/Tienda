@@ -8,7 +8,7 @@
     type AdminOrder,
     type AdminOrderListParams
   } from '$lib/api.admin';
-  import { API } from '$lib/api'; // 👈 nuevo
+  import { API } from '$lib/api';
   import { toastError, toastSuccess } from '$lib/ui/toast';
 
   const clp = new Intl.NumberFormat('es-CL', {
@@ -18,7 +18,7 @@
   }).format;
 
   // URL base para exportar CSV
-  const CSV_URL = `${API}/api/admin/orders/export-csv/`; // 👈 nuevo
+  const CSV_URL = `${API}/api/admin/orders/export-csv/`;
 
   // ------- Tipos de stats locales (adaptamos lo que viene del backend) -------
   type StatusStat = { status: string; count: number; total: number | string };
@@ -264,6 +264,14 @@
     if (status === 'cancelled') return 'Cancelada';
     return status;
   }
+
+  function parseNotes(notes: string) {
+    if (!notes) return { user: [], system: [] };
+    const lines = notes.split('\n').filter((l) => l.trim());
+    const user = lines.filter((l) => !l.startsWith('[MP'));
+    const system = lines.filter((l) => l.startsWith('[MP'));
+    return { user, system };
+  }
 </script>
 
 <section class="mx-auto max-w-7xl px-4 py-6 space-y-6">
@@ -382,16 +390,13 @@
         {:else}
           <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500">
             <span class="inline-flex items-center gap-1">
-              <!-- svelte-ignore element_invalid_self_closing_tag -->
               <span class="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               {stats.by_status.length} estados
             </span>
             <span class="inline-flex items-center gap-1">
-              <!-- svelte-ignore element_invalid_self_closing_tag -->
               <span class="h-1.5 w-1.5 rounded-full bg-sky-500" />
               {stats.by_category.length} categorías
             </span>
-            <!-- svelte-ignore element_invalid_self_closing_tag -->
             <span class="inline-flex items-center gap-1">
               <span class="h-1.5 w-1.5 rounded-full bg-violet-500" />
               {stats.top_products.length} productos destacados
@@ -419,7 +424,6 @@
                       s.status
                     )}`}
                   >
-                    <!-- svelte-ignore element_invalid_self_closing_tag -->
                     <span class="h-1.5 w-1.5 rounded-full bg-current/80" />
                     {statusLabel(s.status)}
                   </span>
@@ -776,11 +780,55 @@
             </div>
 
             {#if detail.notes}
-              <div class="border border-amber-100 bg-amber-50/60 rounded-xl p-3">
-                <p class="text-xs font-semibold text-amber-800 mb-1">Notas del cliente</p>
-                <p class="text-xs text-amber-900 whitespace-pre-wrap">
-                  {detail.notes}
-                </p>
+              {@const { user, system } = parseNotes(detail.notes)}
+              
+              <div class="mt-6 space-y-4">
+                <!-- Notas del Usuario -->
+                {#if user.length > 0}
+                  <div class="rounded-2xl border border-amber-200 bg-amber-50/50 p-4">
+                    <div class="flex items-center gap-2.5 mb-3">
+                      <div class="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 class="text-sm font-bold text-slate-900">Datos de quien retira</h3>
+                        <p class="text-[11px] text-slate-500 font-medium uppercase tracking-wide">Información del cliente</p>
+                      </div>
+                    </div>
+                    <div class="bg-white rounded-xl border border-amber-100 p-3 shadow-sm">
+                      {#each user as line}
+                        <p class="text-sm text-slate-700 leading-relaxed">{line}</p>
+                      {/each}
+                    </div>
+                  </div>
+                {/if}
+
+                <!-- Logs del Sistema (Pagos) -->
+                {#if system.length > 0}
+                  <div class="rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
+                    <div class="flex items-center gap-2.5 mb-3">
+                      <div class="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 class="text-sm font-bold text-slate-900">Registro de Pagos</h3>
+                        <p class="text-[11px] text-slate-500 font-medium uppercase tracking-wide">Información del sistema</p>
+                      </div>
+                    </div>
+                    <div class="space-y-2">
+                      {#each system as line}
+                        <div class="flex items-start gap-2 bg-white border border-slate-200 rounded-lg p-2 shadow-sm">
+                          <div class="mt-0.5 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0"></div>
+                          <code class="text-xs font-mono text-slate-600 break-all">{line}</code>
+                        </div>
+                      {/each}
+                    </div>
+                  </div>
+                {/if}
               </div>
             {/if}
           </div>
@@ -789,8 +837,3 @@
     </div>
   {/if}
 </section>
-
-
-
-
-

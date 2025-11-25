@@ -7,6 +7,7 @@
     type VisitPoint
   } from '$lib/api.admin';
   import { toastError } from '$lib/ui/toast';
+  import { chart } from 'svelte-apexcharts';
 
   const clp = new Intl.NumberFormat('es-CL', {
     style: 'currency',
@@ -32,6 +33,85 @@
 
   // puntos del gráfico de visitas
   let visitPoints: VisitPoint[] = [];
+
+  // Opciones del gráfico
+  $: chartOptions = {
+    series: [
+      {
+        name: 'Visitas',
+        data: visitPoints.map((p) => p.visits)
+      }
+    ],
+    chart: {
+      type: 'area',
+      height: 320,
+      fontFamily: 'inherit',
+      toolbar: { show: false },
+      zoom: { enabled: false }
+    },
+    dataLabels: { enabled: false },
+    stroke: {
+      curve: 'smooth',
+      width: 3,
+      colors: ['#0ea5e9'] // sky-500
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.4,
+        opacityTo: 0.05,
+        stops: [0, 100],
+        colorStops: [
+          {
+            offset: 0,
+            color: '#0ea5e9',
+            opacity: 0.4
+          },
+          {
+            offset: 100,
+            color: '#0ea5e9',
+            opacity: 0.05
+          }
+        ]
+      }
+    },
+    xaxis: {
+      categories: visitPoints.map((p) => fmtDayLabel(p.date)),
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: {
+        style: {
+          colors: '#64748b',
+          fontSize: '11px'
+        }
+      },
+      tooltip: { enabled: false }
+    },
+    yaxis: {
+      labels: {
+        style: {
+          colors: '#64748b',
+          fontSize: '11px'
+        },
+        formatter: (val: number) => val.toFixed(0)
+      }
+    },
+    grid: {
+      borderColor: '#f1f5f9',
+      strokeDashArray: 4,
+      yaxis: { lines: { show: true } },
+      xaxis: { lines: { show: false } },
+      padding: { top: 0, right: 0, bottom: 0, left: 10 }
+    },
+    tooltip: {
+      theme: 'light',
+      y: {
+        formatter: (val: number) => `${val} visita(s)`
+      }
+    },
+    colors: ['#0ea5e9']
+  };
 
   onMount(async () => {
     await Promise.all([loadStats(), loadVisits()]);
@@ -100,13 +180,6 @@
   $: maxProductQty = stats.top_products.length
     ? Math.max(...stats.top_products.map((p) => Number(p.qty || 0)))
     : 1;
-
-  // datos para gráfico de visitas
-  $: maxVisits = visitPoints.length
-    ? Math.max(...visitPoints.map((p) => Number(p.visits || 0)))
-    : 0;
-
-  $: safeMaxVisits = maxVisits > 0 ? maxVisits : 1;
 
   function fmtDayLabel(dateStr: string) {
     try {
@@ -355,17 +428,11 @@
             Número de visitas registradas por día en el sitio web.
           </p>
         </div>
-
-        {#if visitPoints.length}
-          <p class="text-xs text-slate-500">
-            Máximo diario: <span class="font-semibold">{maxVisits}</span> visita(s)
-          </p>
-        {/if}
       </div>
 
       {#if loadingVisits}
         <!-- svelte-ignore element_invalid_self_closing_tag -->
-        <div class="h-44 rounded-xl bg-slate-100 animate-pulse" />
+        <div class="h-64 rounded-xl bg-slate-100 animate-pulse" />
       {:else if !visitPoints.length}
         <p class="text-xs text-slate-500">
           Aún no hay visitas registradas. Cuando el layout llame a
@@ -373,59 +440,8 @@
           aquí verás la tendencia.
         </p>
       {:else}
-        <div class="space-y-2">
-          <!-- contenedor con grilla -->
-          <div class="relative h-48 rounded-xl visits-grid overflow-hidden bg-gradient-to-b from-sky-50/60 via-white to-white">
-            <div class="absolute inset-3 flex items-end gap-2">
-              {#each visitPoints as p}
-                <div class="flex-1 flex flex-col items-center gap-1">
-                  <!-- valor arriba de la barra -->
-                  <div class="h-4 flex items-end justify-center text-[10px] text-slate-500">
-                    {#if p.visits}
-                      <span class="px-1.5 py-[1px] rounded-full bg-sky-100 text-sky-700 font-medium shadow-sm">
-                        {p.visits}
-                      </span>
-                    {/if}
-                  </div>
-
-                  <!-- barra -->
-                  <!-- svelte-ignore element_invalid_self_closing_tag -->
-                  <div
-                    class="w-full rounded-t-xl bg-sky-400/80 shadow-sm hover:bg-sky-500 hover:shadow-md transition-all duration-200"
-                    style={`height: ${
-                      Math.max(6, (Number(p.visits || 0) / safeMaxVisits) * 100)
-                    }%;`}
-                    title={`${fmtDayLabel(p.date)} · ${p.visits} visita(s)`}
-                  />
-                </div>
-              {/each}
-            </div>
-          </div>
-
-          <!-- labels de días (cada 2 para no saturar) -->
-          <div class="flex gap-2 text-[10px] text-slate-500">
-            {#each visitPoints as p, i}
-              <div class="flex-1 text-center">
-                {#if i % 2 === 0}
-                  {fmtDayLabel(p.date)}
-                {/if}
-              </div>
-            {/each}
-          </div>
-        </div>
+        <div class="h-80 w-full" use:chart={chartOptions} />
       {/if}
     </section>
   {/if}
 </section>
-
-<style>
-  /* Fondo de grilla suave para el gráfico de visitas */
-  .visits-grid {
-    background-image: linear-gradient(
-      to top,
-      rgba(148, 163, 184, 0.23) 1px,
-      transparent 1px
-    );
-    background-size: 100% 22px;
-  }
-</style>

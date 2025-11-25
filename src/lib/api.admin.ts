@@ -29,13 +29,13 @@ export type AdminOrder = {
   id: number;
   number: string;
   status:
-    | 'pending'
-    | 'paid'
-    | 'in_production'
-    | 'ready'
-    | 'delivered'
-    | 'cancelled'
-    | string;
+  | 'pending'
+  | 'paid'
+  | 'in_production'
+  | 'ready'
+  | 'delivered'
+  | 'cancelled'
+  | string;
   total: number | string;
   email: string;
   created_at: string;
@@ -46,14 +46,14 @@ export interface AdminOrderListParams {
   page?: number;
   page_size?: number;
   status?:
-    | 'pending'
-    | 'paid'
-    | 'in_production'
-    | 'ready'
-    | 'delivered'
-    | 'cancelled'
-    | 'all'
-    | string;
+  | 'pending'
+  | 'paid'
+  | 'in_production'
+  | 'ready'
+  | 'delivered'
+  | 'cancelled'
+  | 'all'
+  | string;
   email?: string;
   date_from?: string; // 'YYYY-MM-DD'
   date_to?: string; // 'YYYY-MM-DD'
@@ -304,6 +304,36 @@ export async function adminUpdateOrderStatus(
     body: JSON.stringify({ status })
   });
   if (!r.ok) throw await r.text();
+  return r.json();
+}
+
+/**
+ * Eliminar una orden individual
+ */
+export async function adminDeleteOrder(id: number): Promise<boolean> {
+  const r = await fetch(`${API}/api/admin/orders/${id}/`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: { 'X-CSRFToken': csrftoken() }
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return true;
+}
+
+/**
+ * Eliminar múltiples órdenes (eliminación masiva)
+ */
+export async function adminDeleteOrders(ids: number[]): Promise<{ deleted: number }> {
+  const r = await fetch(`${API}/api/admin/orders/bulk-delete/`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrftoken()
+    },
+    body: JSON.stringify({ ids })
+  });
+  if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
 

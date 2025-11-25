@@ -23,6 +23,7 @@
   let busyDelImg = new Set<string>(); // `${productId}:${imageId}`
   let busyDelProd = new Set<number>();
   let busyStock = new Set<number>();  // para cambios de stock
+  let busyPrice = new Set<number>();  // para cambios de precio
 
   // Límite para considerar "stock bajo" (solo para las badges visuales)
   const LOW_STOCK_LIMIT = 5;
@@ -340,6 +341,37 @@
       toastError(String(e?.message ?? e));
     } finally {
       busyStock = delBusy(busyStock, id);
+    }
+  }
+
+  // 🔸 Cambiar precio desde la tarjeta
+  async function changePrice(p: any, event: Event) {
+    const input = event.currentTarget as HTMLInputElement;
+    let value = Number(input.value);
+
+    if (!Number.isFinite(value) || value < 0) {
+      toastError('El precio debe ser un número mayor o igual a 0');
+      input.value = String(p.price ?? 0);
+      return;
+    }
+
+    const id = p.id;
+    const prev = p.price;
+
+    // optimista
+    updateItem(id, (it) => ({ ...it, price: value }));
+    busyPrice = addBusy(busyPrice, id) as Set<number>;
+
+    try {
+      await adminPatchProduct(id, { price: value });
+      toastSuccess('Precio actualizado');
+    } catch (e: any) {
+      // rollback
+      updateItem(id, (it) => ({ ...it, price: prev }));
+      input.value = String(prev);
+      toastError(String(e?.message ?? e));
+    } finally {
+      busyPrice = delBusy(busyPrice, id);
     }
   }
 
@@ -691,10 +723,48 @@
           </div>
 
           <!-- Precio + Stock editable -->
-          <div class="flex items-center justify-between text-sm text-slate-700">
-            <span>Precio: <b>{fmt(p.price)}</b></span>
+          <div class="space-y-2">
+            <!-- Precio editable -->
+            <div class="flex items-center gap-2 text-sm">
+              <span class="text-slate-600">Precio:</span>
+              <input
+                class="w-28 rounded-lg border border-slate-300 px-2 py-1 text-xs text-right focus:outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400"
+                type="number"
+                min="0"
+                step="100"
+                value={p.price}
+                on:change={(e) => changePrice(p, e)}
+              />
+              {#if busyPrice.has(p.id)}
+                <svg
+                  class="h-3.5 w-3.5 animate-spin text-slate-400"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="9"
+                    stroke="currentColor"
+                    stroke-opacity=".25"
+                    stroke-width="3"
+                  />
+                  <path
+                    d="M21 12a9 9 0 0 1-9 9"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              {:else}
+                <span class="text-xs font-semibold text-slate-900">{fmt(p.price)}</span>
+              {/if}
+            </div>
+
+            <!-- Stock editable -->
             <div class="flex items-center gap-2 text-xs">
-              <span>Stock:</span>
+              <span class="text-slate-600">Stock:</span>
               <input
                 class="w-16 rounded-lg border border-slate-300 px-2 py-1 text-xs text-right focus:outline-none focus:ring-1 focus:ring-amber-400 focus:border-amber-400"
                 type="number"
